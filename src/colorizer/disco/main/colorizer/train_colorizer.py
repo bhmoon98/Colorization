@@ -44,9 +44,8 @@ def train_model(args, gpu_num, gpu_no, is_ddp):
     if not is_ddp and is_multi_gpus:
         args.batch_size = args.batch_size*gpu_num 
     dataset_info = dataset_info_from_argument(args)
-    dataset_info['data_dir'] = os.path.join(data_dir, 'train')
+    dataset_info['data_dir'] = data_dir
     train_loader = build_dataloader(dataset_info, mode='train', logger=logger, gpu_num=gpu_num, rank=gpu_no, is_ddp=is_ddp)
-    dataset_info['data_dir'] = os.path.join(data_dir, 'val')
     val_loader = build_dataloader(dataset_info, mode='val', logger=logger, gpu_num=gpu_num, rank=gpu_no, is_ddp=is_ddp)
     if gpu_no == 0:
         logger.info(">> dataset (%d iters) was created" % len(train_loader))
@@ -224,7 +223,7 @@ def validate(epoch, data_loader, model, criterion, meta_dict, val_plotter, logge
             if analysis_anchor_pos:
                 N,C,HW = hint_mask.shape
                 hint_mask = hint_mask.view(N,C,16,16)
-                show_maps = torch.where(hint_mask > 0.5, -1.0*torch.ones_like(hint_mask), cluster_mask)
+                show_maps = torch.where(hint_mask > 0.5, -1.0*torch.ones_like(hint_mask))
                 show_maps = basic.upfeat(show_maps, affinity_map, sp_size, sp_size)
                 show_imgs = basic.tensor2array(show_maps)
                 util.save_images_from_batch(show_imgs, meta_dict['img_dir'], None, batch_idx*gpu_num+gpu_no, suffix='anchor')

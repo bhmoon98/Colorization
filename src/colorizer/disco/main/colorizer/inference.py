@@ -24,13 +24,7 @@ def fetch_data(img_path, org_size=True):
     bgr_img = cv2.imread(img_path, cv2.IMREAD_COLOR)
     rgb_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
     H, W = rgb_img.shape[:2]
-    if org_size:
-        scale = 16
-        if H % scale != 0 or W % scale != 0:
-            ## H,W,C
-            rgb_img = np.pad(rgb_img, ((0, scale - H % scale), (0, scale - W % scale), (0, 0)), mode='edge')
-    else:
-        rgb_img = cv2.resize(rgb_img, (256,256), interpolation=cv2.INTER_LINEAR)
+    rgb_img = cv2.resize(rgb_img, (256,256), interpolation=cv2.INTER_LINEAR)
 
     rgb_img = np.array(rgb_img / 255., np.float32)
     lab_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2LAB)

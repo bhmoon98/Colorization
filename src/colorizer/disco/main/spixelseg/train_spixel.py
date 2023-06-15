@@ -15,11 +15,13 @@ import torch.nn.functional as F
 
 os.chdir(sys.path[0])
 sys.path.append("..")
-import _init_paths
-from utils_argument import spixel_argparser
-from utils_train import *
-import model, loss, basic
-import util
+import main._init_paths
+from main.utils_argument import spixel_argparser
+from main.utils_train import *
+import models.model as model 
+import models.loss as loss 
+import models.basic as basic 
+import utils.util as util
 
 
 def train_model(args, gpu_num, gpu_no, is_ddp):
@@ -44,9 +46,8 @@ def train_model(args, gpu_num, gpu_no, is_ddp):
     if not is_ddp and is_multi_gpus:
         args.batch_size = args.batch_size*gpu_num 
     dataset_info = dataset_info_from_argument(args)
-    dataset_info['data_dir'] = os.path.join(data_dir, 'train')
+    dataset_info['data_dir'] = data_dir
     train_loader = build_dataloader(dataset_info, mode='train', logger=logger, gpu_num=gpu_num, rank=gpu_no, is_ddp=is_ddp)
-    dataset_info['data_dir'] = os.path.join(data_dir, 'val')
     val_loader = build_dataloader(dataset_info, mode='val', logger=logger, gpu_num=gpu_num, rank=gpu_no, is_ddp=is_ddp)
     if gpu_no == 0:
         logger.info(">> dataset (%d iters) was created" % len(train_loader))
