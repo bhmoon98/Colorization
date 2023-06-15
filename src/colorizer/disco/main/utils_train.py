@@ -84,8 +84,8 @@ def build_dataloader(dataset_info, mode, logger, gpu_num=1, rank=0, is_ddp=False
         file_list_color.sort()
         file_list_gray = get_filelist(data_gray_dir)
         file_list_gray.sort()
-        dataset = zip(file_list_color, file_list_gray)
-        dataset = dataset_lab.LabDatasetCustom(imgs_list = dataset, resize= 256)
+        imgs_list = list(zip(file_list_color, file_list_gray))
+        dataset = dataset_lab.LabDatasetCustom(imgs_list = imgs_list, resize= 256)
     elif dataset_info['dataset'] == 'disco':
         #data_dir = os.path.join(dataset_info['data_dir'], 'target')
         data_dir = dataset_info['data_dir']
@@ -117,7 +117,7 @@ def build_dataloader(dataset_info, mode, logger, gpu_num=1, rank=0, is_ddp=False
     else:
         raise NotImplementedError
     if rank == 0:
-        logger.info(">> loaded %d images from %s [%s]." % (len(file_list), dataset_info['dataset'], mode))
+        logger.info(">> loaded %d images from %s [%s]." % (len(imgs_list), dataset_info['dataset'], mode))
     data_loader = get_dataloader(dataset, mode, dataset_info['batch_size'], dataset_info['num_workers'], gpu_num, rank, is_ddp)
     return data_loader
 

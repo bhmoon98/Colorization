@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class ABGamut:
-    RESOURCE_POINTS = "../../utils/gamut_pts.npy"
-    RESOURCE_PRIOR = "../../utils/gamut_probs.npy"
+    RESOURCE_POINTS = "utils/gamut_pts.npy"
+    RESOURCE_PRIOR = "utils/gamut_probs.npy"
     DTYPE = np.float32
     EXPECTED_SIZE = 313
     def __init__(self):

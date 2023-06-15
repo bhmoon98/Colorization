@@ -47,7 +47,7 @@ class LabDatasetCustom(Dataset):
         self.resize = resize
 
     def __len__(self):
-        return len(list(self.imgs_list))
+        return len(self.imgs_list)
 
     def __getitem__(self, idx):
         img_color_dir = self.imgs_list[idx][0]
