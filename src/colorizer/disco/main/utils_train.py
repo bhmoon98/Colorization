@@ -69,7 +69,24 @@ def build_dataloader(dataset_info, mode, logger, gpu_num=1, rank=0, is_ddp=False
         return sub_list
 
     file_list = []
-    if dataset_info['dataset'] == 'disco':
+    if dataset_info['dataset'] == 'custom':
+        file_list_color = []
+        file_list_gray = []
+        data_dir = dataset_info['data_dir']
+        if mode == 'train':
+            data_dir = os.path.join(data_dir, 'train')
+            
+        if mode == 'val':
+            data_dir = os.path.join(data_dir, 'val')
+        data_color_dir=os.path.join(data_dir, 'color')
+        data_gray_dir=os.path.join(data_gray_dir, 'gray')
+        file_list_color = get_filelist(data_color_dir)
+        file_list_color.sort()
+        file_list_gray = get_filelist(data_gray_dir)
+        file_list_gray.sort()
+        dataset = zip(file_list_color, file_list_gray)
+        dataset = dataset_lab.LabDatasetCustom(file_list = dataset, resize= 256)
+    elif dataset_info['dataset'] == 'disco':
         #data_dir = os.path.join(dataset_info['data_dir'], 'target')
         data_dir = dataset_info['data_dir']
         assert os.path.exists(data_dir), "@dir:'%s' NOT exist ..."%data_dir

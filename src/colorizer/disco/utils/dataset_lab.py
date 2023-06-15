@@ -56,15 +56,18 @@ class LabDatasetCustom(Dataset):
         img_bgr = cv2.imread(img_color_dir, cv2.IMREAD_COLOR)
         img_gray = cv2.imread(img_gray_dir, cv2.IMREAD_COLOR)
         
-        img_bgr = cv2.resize(img_bgr, (256, 256), interpolation=cv2.INTER_CUBIC)
-        img_gray = cv2.resize(img_gray, (256, 256), interpolation=cv2.INTER_CUBIC)
+        img_bgr = cv2.resize(img_bgr, (self.resize, self.resize), interpolation=cv2.INTER_CUBIC)
+        img_gray = cv2.resize(img_gray, (self.resize, self.resize), interpolation=cv2.INTER_CUBIC)
         
         img_bgr = np.array(img_bgr / 255., np.float32)
         img_bgr2lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
+        img_gray = np.array(img_bgr / 255., np.float32)
+        img_gray2lab = cv2.cvtColor(img_gray, cv2.COLOR_BGR2LAB)
         
-        lab_img = torch.from_numpy(lab_img.transpose((2, 0, 1)))
-        bgr_img = torch.from_numpy(bgr_img.transpose((2, 0, 1)))
-        gray_img = (lab_img[0:1,:,:]-50.) / 50.
-        color_map = lab_img[1:3,:,:] / 110.
-        bgr_img = bgr_img*2. - 1.
-        return {'gray': gray_img, 'color': color_map, 'BGR': bgr_img}
+        img_bgr2lab = torch.from_numpy(img_bgr2lab.transpose((2, 0, 1)))
+        img_gray2lab = torch.from_numpy(img_gray2lab.transpose((2, 0, 1)))
+        img_bgr = torch.from_numpy(img_bgr.transpose((2, 0, 1)))
+        img_gray = (img_gray2lab[0:1,:,:]-50.) / 50.
+        img_color = img_bgr2lab[1:3,:,:] / 110.
+        img_bgr = img_bgr*2. - 1.
+        return {'gray': img_gray, 'color': img_color, 'BGR': img_bgr}
