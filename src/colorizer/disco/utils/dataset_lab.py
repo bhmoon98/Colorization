@@ -70,6 +70,4 @@ class LabDatasetCustom(Dataset):
         img_gray = (img_gray2lab[0:1,:,:]-50.) / 50.
         img_color = img_bgr2lab[1:3,:,:] / 110.
         img_bgr = img_bgr*2. - 1.
-        if idx==10:
-            print(img_color)
         return {'gray': img_gray, 'color': img_color, 'BGR': img_bgr}
