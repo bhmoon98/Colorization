@@ -52,14 +52,14 @@ def pcolor_argparser(parser):
     parser.add_argument('--spix_pos', action='store_true', default=False, help='use pos of spixel centroid')
     parser.add_argument('--learning_pos', action='store_true', default=False, help='learnable pos embedding')
     parser.add_argument('--hint2regress', action='store_true', default=False, help='predict ab values from hint')
-    parser.add_argument('--n_clusters', default=8, type=int, help='number of color clusters')
-    parser.add_argument('--random_hint', action='store_true', default=False, help='sample anchors randomly')
-    parser.add_argument('--enhanced', action='store_true', default=False, help='use pixel-level enhancement or not')
+    parser.add_argument('--n_clusters', default=8, type=int, help='number of color clusters')                           #cluster 값 변경
+    parser.add_argument('--random_hint', action='store_true', default=False, help='sample anchors randomly')            
+    parser.add_argument('--enhanced', action='store_true', default=False, help='use pixel-level enhancement or not')    #deblurring 모델 나중에 변경
     parser.add_argument('--vgg_type', default='liu', type=str, help='which vgg features to use: {lei, liu, mine}')
     parser.add_argument('--in_gradient', action='store_true', default=False, help='supervision in gradient domain')
     parser.add_argument('--colorfulness', default=0.5, type=float, help='color class rebalance in training')
 
-    parser.add_argument('--optim', default='adam', type=str, help='adam, sgd')
+    parser.add_argument('--optim', default='adam', type=str, help='adam, sgd')                                          #optimizer 나중에 추가(lion)
     parser.add_argument('--scheduler', default='linear', type=str, help='LR scheduler')
     parser.add_argument('--lr', default=2e-4, type=float, help='learning rate')
     parser.add_argument('--decay_ratio', default=1e-2, type=float, help='only applicable to linear scheduler')
