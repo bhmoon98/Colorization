@@ -13,8 +13,9 @@ import torch.nn.functional as F
 sys.path.append("..")
 import _init_paths
 from utils_train import load_checkpoint
-import model, basic
-import util
+import models.model as model 
+import models.basic as basic
+import utils.util as util
 
 
 def fetch_data(img_path, need_padding=False):

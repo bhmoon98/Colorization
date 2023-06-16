@@ -51,7 +51,7 @@ class LabDatasetCustom(Dataset):
 
     def __getitem__(self, idx):
         img_color_dir = self.imgs_list[idx][0]
-        img_gray_dir = self.imgs_list[idx][0]
+        img_gray_dir = self.imgs_list[idx][1]
         
         img_bgr = cv2.imread(img_color_dir, cv2.IMREAD_COLOR)
         img_gray = cv2.imread(img_gray_dir, cv2.IMREAD_COLOR)

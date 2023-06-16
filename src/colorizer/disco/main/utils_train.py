@@ -16,16 +16,13 @@ import torch.optim as optim
 import _init_paths
 import utils.dataset_lab as dataset_lab
 
-from src.optimizer.lion.lion import Lion
-
 
 def build_optimizer(optim_name, lr, wd, params):
     if optim_name == 'adam':
-        optimizer = optim.Adam(params, lr=lr, weight_decay=wd)
+        optimizer = optim.Adam(params, lr=lr, weight_decay=wd, betas=(0., 0.9))
     elif optim_name == 'sgd':
         optimizer = optim.SGD(params, lr=lr, weight_decay=wd, momentum=0.9)
     elif optimizer == 'lion':
-        optimizer = Lion(params, lr=lr, weight_decay=wd)
         pass 
     else:
         raise NotImplementedError

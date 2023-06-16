@@ -23,6 +23,8 @@ import models.loss as loss
 import models.basic as basic 
 import utils.util as util
 
+import traceback
+
 
 def train_model(args, gpu_num, gpu_no, is_ddp):
     datetime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

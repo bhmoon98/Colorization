@@ -1,4 +1,4 @@
-import os, glob, sys, logging
+import os, glob, sys, logging, traceback
 import argparse, pdb, datetime, time
 import numpy as np
 import random, pickle
@@ -150,6 +150,7 @@ def train_one_epoch(epoch, data_loader, model, criterion, optimizer, meta_dict, 
 
         optimizer.zero_grad()
         totalLoss_idx.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
         optimizer.step()
 
         ## average loss
@@ -158,7 +159,7 @@ def train_one_epoch(epoch, data_loader, model, criterion, optimizer, meta_dict, 
                 loss_terms[key] += loss_dict[key]
 
         ## print iteration
-        if gpu_no == 0 and (batch_idx+1) % 100 == 0: 
+        if gpu_no == 0 and (batch_idx+1) % 100 == 0:
             logger.info(">> [%d/%d] iter:%d loss:%4.4f [io/proc:%4.3f%%]" % \
                     (epoch+1, n_epochs, batch_idx+1, totalLoss_idx.item(), 100*(et-st)/(time.time()-et)))
         st = time.time()

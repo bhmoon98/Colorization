@@ -419,7 +419,8 @@ def xyz2rgb(xyz):
     mask = (rgb > .0031308).type(torch.FloatTensor)
     if(rgb.is_cuda):
         mask = mask.cuda()
-    rgb = (1.055*(rgb**(1./2.4)) - 0.055)*mask + 12.92*rgb*(1-mask)
+    eps = 0.001
+    rgb = (1.055*((rgb.abs()+eps)**(1./2.4)) - 0.055)*mask + 12.92*rgb*(1-mask)
     return rgb
 
 def xyz2lab(xyz):

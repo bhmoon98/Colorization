@@ -7,6 +7,8 @@ from skimage.segmentation import mark_boundaries
 import numpy as np
 from PIL import Image
 import cv2, torch
+import matplotlib.pyplot as plt
+
 
 def get_gauss_kernel(size, sigma):
     '''Function to mimic the 'fspecial' gaussian MATLAB function'''
@@ -164,7 +166,7 @@ def save_dict(save_path, dict):
 
 
 if __name__ == '__main__':
-    data_dir = '../PolyNet/PolyNet/cache/'
+    """data_dir = '../PolyNet/PolyNet/cache/'
     #visualizeLossCurves(data_dir)
     clbar = GamutIndex()
     ab, ab_gamut_mask = clbar._get_gamut_mask()
@@ -175,4 +177,5 @@ if __name__ == '__main__':
     image.save('gamut.png', 'PNG')
     print(ab2q.shape)
     print(q2ab.shape)
-    print('label range:', np.min(ab2q), np.max(ab2q))
+    print('label range:', np.min(ab2q), np.max(ab2q))"""
+    pass

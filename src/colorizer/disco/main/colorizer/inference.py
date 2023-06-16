@@ -12,7 +12,7 @@ import torch.nn.functional as F
 
 os.chdir(sys.path[0])
 sys.path.append("..")
-import _init_paths
+import main._init_paths as _init_paths
 from utils_train import load_checkpoint
 import models.model as model 
 import models.basic as basic 
@@ -54,7 +54,7 @@ def test_model(data_dir, model_name, sp_size, checkpt_path, name, seq_model_args
     torch.manual_seed(seq_model_args.seed)
     torch.cuda.manual_seed(seq_model_args.seed)
     root_dir = os.path.abspath(os.path.join('./', '..', '..'))
-    save_dir = os.path.join(root_dir, name+'-anchor%d'%args.n_clusters)
+    save_dir = name
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     
