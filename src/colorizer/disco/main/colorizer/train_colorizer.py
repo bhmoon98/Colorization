@@ -15,11 +15,13 @@ import torch.nn.functional as F
 
 os.chdir(sys.path[0])
 sys.path.append("..")
-import _init_paths
+import main._init_paths as _init_paths
 from utils_argument import pcolor_argparser
 from utils_train import *
-import model, loss, basic
-import util
+import models.model as model 
+import models.loss as loss 
+import models.basic as basic 
+import utils.util as util
 
 
 def train_model(args, gpu_num, gpu_no, is_ddp):
@@ -55,7 +57,7 @@ def train_model(args, gpu_num, gpu_no, is_ddp):
                                              n_clusters=args.n_clusters, random_hint=args.random_hint, spix_pos=args.spix_pos, \
                                              learning_pos=args.learning_pos, hint2regress=args.hint2regress, enhanced=args.enhanced, rank=gpu_no)
     ckpt_name = 'spix8ab-imagenet_last.pth.tar' if args.psize == 8 else 'spix16ab-imagenet_last.pth.tar'
-    pretrain_weight = os.path.join(args.ckpt_dir, ckpt_name)
+    pretrain_weight = args.ckpt_dir
     hcolor_model.load_and_froze_weight(pretrain_weight)
     if gpu_no == 0:
         print('@model params:%.3f (M)'%(basic.getParamsAmount(hcolor_model)/1e6))

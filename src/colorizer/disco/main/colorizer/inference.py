@@ -14,9 +14,10 @@ os.chdir(sys.path[0])
 sys.path.append("..")
 import _init_paths
 from utils_train import load_checkpoint
-import model, basic
-import util
-import clusterkit
+import models.model as model 
+import models.basic as basic 
+import utils.util as util 
+import models.clusterkit as clusterkit
 from skimage import segmentation, color
 
 

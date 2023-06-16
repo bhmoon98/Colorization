@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 import math, random
-#from sklearn.cluster import KMeans, kmeans_plusplus, MeanShift, estimate_bandwidth
+from sklearn.cluster import KMeans, kmeans_plusplus, MeanShift, estimate_bandwidth
 
 
 def tensor_kmeans_sklearn(data_vecs, n_clusters=7, metric='euclidean', need_layer_masks=False, max_iters=20):
@@ -233,8 +233,9 @@ def kmeans_predict(
     elif distance == 'cosine':
         pairwise_distance_function = partial(pairwise_cosine, device=device)
     elif distance == 'soft_dtw':
-        sdtw = SoftDTW(use_cuda=device.type == 'cuda', gamma=gamma_for_soft_dtw)
-        pairwise_distance_function = partial(pairwise_soft_dtw, sdtw=sdtw, device=device)
+        #sdtw = SoftDTW(use_cuda=device.type == 'cuda', gamma=gamma_for_soft_dtw)
+        #pairwise_distance_function = partial(pairwise_soft_dtw, sdtw=sdtw, device=device)
+        pass
     else:
         raise NotImplementedError
 

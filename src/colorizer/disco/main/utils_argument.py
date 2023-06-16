@@ -13,8 +13,8 @@ def spixel_argparser(parser):
     parser.add_argument('--scheduler', default='linear', type=str, help='LR scheduler')
     parser.add_argument('--lr', default=2e-4, type=float, help='learning rate')
     parser.add_argument('--wd', default=0, type=float, help='weight decay')
-    parser.add_argument('--epochs', default=200, type=int, help='number of total epochs to run')
-    parser.add_argument('--workers', default=16, type=int, help='number of worker to use')
+    parser.add_argument('--epochs', default=1000, type=int, help='number of total epochs to run')
+    parser.add_argument('--workers', default=12, type=int, help='number of worker to use')
     parser.add_argument('--eval_freq', default=1, type=int)
 
     parser.add_argument('--dataset', default='voc', type=str)
@@ -64,8 +64,8 @@ def pcolor_argparser(parser):
     parser.add_argument('--lr', default=2e-4, type=float, help='learning rate')
     parser.add_argument('--decay_ratio', default=1e-2, type=float, help='only applicable to linear scheduler')
     parser.add_argument('--wd', default=0, type=float, help='weight decay')
-    parser.add_argument('--epochs', default=60, type=int, help='number of total epochs to run')
-    parser.add_argument('--workers', default=16, type=int, help='number of worker to use')
+    parser.add_argument('--epochs', default=1000, type=int, help='number of total epochs to run')
+    parser.add_argument('--workers', default=12, type=int, help='number of worker to use')
     parser.add_argument('--eval_freq', default=1, type=int)
 
     parser.add_argument('--dataset', default='imagenet', type=str)

@@ -14,7 +14,7 @@ import torch.multiprocessing as mp
 import torch.optim as optim
 
 import _init_paths
-import dataset_lab
+import utils.dataset_lab as dataset_lab
 
 
 def build_optimizer(optim_name, lr, wd, params):

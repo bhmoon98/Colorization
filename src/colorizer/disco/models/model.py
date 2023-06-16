@@ -174,7 +174,7 @@ class AnchorColorProb(nn.Module):
         ## (N,C,H,W) -> (HW,N,C)
         mask_seq = hint_mask.flatten(2).permute(2, 0, 1)
         if self.hint2regress:
-            spix_colors_ = sampled_spix_colors if test_mode else spix_color
+            spix_colors_ = sampled_spix_colors if test_mode else spix_colors
             gt_seq = spix_colors_.flatten(2).permute(2, 0, 1)
             hint_seq = self.trg_word_emb(torch.cat([src_seq, mask_seq * gt_seq, mask_seq], dim=2))
             dec_out, _ = self.hintpath(hint_seq, src_pos_seq, src_pad_mask)
