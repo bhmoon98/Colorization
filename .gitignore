@@ -3,3 +3,4 @@ run.txt
 src/test.py
 __pycache__/
 models/
+result/
