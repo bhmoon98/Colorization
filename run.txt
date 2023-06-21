@@ -1,0 +1,16 @@
+python -m src.data.classificationData data/
+
+
+---train---
+#spixel
+python -m main.spixelseg.train_spixel --dataset custom --data_dir ~/Python/Colorizer/dataset/crop --save_dir ~/Python/Colorizer/models --exp_name spixel_
+#colorizer
+python -m main.colorizer.train_colorizer --model AnchorColorProb --dataset custom --batch_size 16 --data_dir ~/Python/Colorizer/dataset/crop --save_dir ~/Python/Colorizer/models --ckpt_dir  ~/Python/Colorizer/models/backbone/spix16ab-imagenet_last.pth.tar --exp_name disco_crop_2 --dense_pos --enhanced
+
+
+--tensorboard--
+tensorboard --logdir=~/Python/Colorizer/models/spixel_2
+
+
+---test---
+python -m main.colorizer.inference  --data ~/Python/Colorizer/dataset/crop/test/gray --checkpt ~/Python/Colorizer/models/disco_crop_2/checkpts/model_best.pth.tar --name ~/Python/Colorizer/result/disco_crop_2/ --n_clusters 8

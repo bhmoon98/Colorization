@@ -1,5 +1,4 @@
 dataset/
-run.txt
 src/test.py
 __pycache__/
 train_models/
