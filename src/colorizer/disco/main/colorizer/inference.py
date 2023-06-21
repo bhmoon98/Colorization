@@ -85,6 +85,7 @@ def test_model(data_dir, model_name, sp_size, checkpt_path, name, seq_model_args
     color_class = basic.ColorLabel()
 
     start_time = time.time()
+    i = 0
     for nn, img_pth in enumerate(img_list):
         _, file_name = os.path.split(img_pth)
         print('-processing %s ...' % file_name)
@@ -126,6 +127,10 @@ def test_model(data_dir, model_name, sp_size, checkpt_path, name, seq_model_args
             hint_imgs = basic.tensor2array(marked_labs)
             hint_imgs = batch_depadding(hint_imgs, H, W, args)
             #util.save_normLabs_from_batch(hint_imgs, save_dir, [file_name], -1, suffix='anchors')
+        i+=1
+        if i==10:
+            exit()
+        
 
     print("-processed %d imgs. consumed %f sec" % (nn+1, (time.time() - start_time)))
 

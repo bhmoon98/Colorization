@@ -2,5 +2,5 @@ dataset/
 run.txt
 src/test.py
 __pycache__/
-models/
+train_models/
 result/
