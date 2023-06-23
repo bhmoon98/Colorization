@@ -2,6 +2,7 @@
 
 import os, csv, cv2, math, argparse
 import numpy as np
+from scipy.linalg import sqrtm
 
 
 
@@ -49,10 +50,9 @@ def fid(img_1, img_2):
     
     ssdiff = np.sum((mu_1 - mu_2)**2.0)
     
-    covmean = np.linalg.sqrtm(sigma_1.dot(sigma_2))
+    covmean = sqrtm(sigma_1.dot(sigma_2))
     if np.iscomplexobj(covmean):
        covmean = covmean.Real
-       
     fid = ssdiff + np.trace(sigma_1 + sigma_2 - 2.0 * covmean)
     return fid
 
@@ -90,8 +90,8 @@ def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
             
             a_1 = img_1[:,:,1]+128.
             b_1 = img_1[:,:,2]+128.
-            a_2 = img_1[:,:,1]+128.
-            b_2 = img_1[:,:,2]+128.
+            a_2 = img_2[:,:,1]+128.
+            b_2 = img_2[:,:,2]+128.
             
             fid_a = fid(a_1, a_2)
             fid_b = fid(b_1, b_2)
@@ -113,11 +113,10 @@ def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
             progress +=1
             
             
-    print('fid 평균:', np.mean(fid_list))
-    print('fid 평균:', np.mean(fid_list))
-    print('fid 평균:', np.mean(fid_list))
+    print('psnr 평균:', np.mean(psnr_list))
+    print('ssim 평균:', np.mean(ssim_list))
         
-    with open(save_file, "w", newline="") as csv_file:
+    with open(save_file, "a", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow([])
         writer.writerow(["평균", "", 
