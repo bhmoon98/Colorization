@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torchvision import models
+from torchvision import model
 import numpy as np
 
 from basicsr.archs.colorformer_arch_util import _conv

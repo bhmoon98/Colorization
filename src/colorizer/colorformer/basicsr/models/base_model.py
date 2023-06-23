@@ -206,7 +206,7 @@ class BaseModel():
         if current_iter == -1:
             current_iter = 'latest'
         save_filename = f'{net_label}_{current_iter}.pth'
-        save_path = os.path.join(self.opt['path']['models'], save_filename)
+        save_path = os.path.join(self.opt['path']['model'], save_filename)
 
         net = net if isinstance(net, list) else [net]
         param_key = param_key if isinstance(param_key, list) else [param_key]

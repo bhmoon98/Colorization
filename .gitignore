@@ -1,5 +1,5 @@
 dataset/
 src/test.py
 __pycache__/
-train_models/
+model/
 result/

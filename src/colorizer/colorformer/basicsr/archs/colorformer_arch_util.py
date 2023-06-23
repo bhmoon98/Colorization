@@ -1,7 +1,7 @@
 from enum import Enum
 import torch
 import torch.nn as nn
-from torchvision import models
+from torchvision import model
 import numpy as np
 from torch.nn import functional as F
 

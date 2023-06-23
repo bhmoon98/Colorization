@@ -1,10 +1,10 @@
 from tracemalloc import start
 import torch
 import time
-from basicsr.archs.colorformer_arch import ColorFormer as models
+from basicsr.archs.colorformer_arch import ColorFormer as model
 
 
-model = models('twins', input_size=[256, 256], num_output_channels=2, last_norm='Spectral', do_normalize=False)
+model = model('twins', input_size=[256, 256], num_output_channels=2, last_norm='Spectral', do_normalize=False)
 model = model.cuda()
 torch.backends.cudnn.benchmark=True
 

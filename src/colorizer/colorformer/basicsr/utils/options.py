@@ -157,7 +157,7 @@ def parse_options(root_path, is_train=True):
     if is_train:
         experiments_root = osp.join(root_path, 'experiments', opt['name'])
         opt['path']['experiments_root'] = experiments_root
-        opt['path']['models'] = osp.join(experiments_root, 'models')
+        opt['path']['model'] = osp.join(experiments_root, 'model')
         opt['path']['training_states'] = osp.join(experiments_root, 'training_states')
         opt['path']['log'] = experiments_root
         opt['path']['visualization'] = osp.join(experiments_root, 'visualization')
