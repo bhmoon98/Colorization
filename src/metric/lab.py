@@ -8,8 +8,8 @@ from scipy.linalg import sqrtm
 
 
 def argparser(parser):
-    parser.add_argument('--GT_dir', default='dataset/TM2/test', type=str, help='GT dir')
-    parser.add_argument('--data_dir', default='result/UGATIT/TM2', type=str, help='Colorization dir')
+    parser.add_argument('--GT_dir', default='dataset/TM2/Color', type=str, help='GT dir')
+    parser.add_argument('--data_dir', default='result/CF/TM2', type=str, help='Colorization dir')
     parser.add_argument('--save_dir', default='result', type=str, help='save dir')
     return parser
 
@@ -66,10 +66,10 @@ def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
     psnr_list = []
     ssim_list = []
     
-    total_imgs = len(img_list_1)
+    total_imgs = len(img_list_2)
     progress = 1
     
-    save_name = 'metrics_UGATIT_TM2.csv'
+    save_name = 'metrics_CF_TM2.csv'
     header = ['img_1', 'img_2', 
               'psnr', 'psnr_a', 'psnr_b'
               'ssim', 'ssim_a', 'ssim_b']
@@ -79,11 +79,12 @@ def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
     with open(save_file, "w", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(header)
-        for img_dir_1, img_dir_2 in zip(img_list_1, img_list_2):
-            img_1 = cv2.imread(img_dir_1, cv2.IMREAD_COLOR)
-            img_1 = cv2.resize(img_1,(256, 256), interpolation=cv2.INTER_CUBIC)
+        
+        for img_dir_2 in img_list_2:
+            img_1 = cv2.imread(os.path.join(imgs_dir_1, img_dir_2[:-5]+'4.png'), cv2.IMREAD_COLOR)
+            img_1 = cv2.resize(img_1, (256, 256), interpolation=cv2.INTER_CUBIC)
             img_1 = cv2.cvtColor(img_1, cv2.COLOR_BGR2LAB)
-            img_2 = cv2.imread(img_dir_2, cv2.IMREAD_COLOR)
+            img_2 = cv2.imread(os.path.join(imgs_dir_2, img_dir_2), cv2.IMREAD_COLOR)
             img_2 = cv2.resize(img_2,(256, 256), interpolation=cv2.INTER_CUBIC)
             img_2 = cv2.cvtColor(img_2, cv2.COLOR_BGR2LAB)
             
@@ -97,7 +98,7 @@ def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
             ssim_a = ssim(a_1, a_2)
             ssim_b = ssim(b_1, b_2)
             
-            writer.writerow([img_dir_1.split('/')[-1], img_dir_2.split('/')[-1], 
+            writer.writerow([img_dir_2, img_dir_2.split('/')[-1], 
                              (psnr_a+psnr_b)/2, psnr_a, psnr_b, 
                              (ssim_a+ssim_b)/2, ssim_a, ssim_b])
             
@@ -107,16 +108,8 @@ def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
             print(f'{progress}/{total_imgs}')
             progress +=1
             
-            
     print('psnr 평균:', np.mean(psnr_list))
     print('ssim 평균:', np.mean(ssim_list))
-        
-    with open(save_file, "a", newline="") as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow([])
-        writer.writerow(["평균", "", 
-                         np.mean(psnr_list), '', '', 
-                         np.mean(ssim_list), '', ''])
     
     print(f"save")
 

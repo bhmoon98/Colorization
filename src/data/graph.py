@@ -1,13 +1,10 @@
 import os, sys, csv
 sys.path.append("/mnt/e/Program/Python/Colorization")
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import numpy as np
 
 
-
-if __name__=='__main__':
-    output_file = "dataset/metrics_TM1.csv"
-    
+def graph_all(output_file):
     cGAN_psnr = []
     cGAN_ssim = []
     CF_psnr = []
@@ -58,7 +55,56 @@ if __name__=='__main__':
     DISCO.plot(n, DISCO_ssim, 'b', label='DISCO')
     UGATIT = fig.add_subplot(414)
     UGATIT.plot(n, UGATIT_ssim, 'y', label='UGATIT')
-    plt.savefig('ssim_TM1.png')
+    plt.savefig('result/ssim_TM1.png')
     plt.show()
     
     print('save_ssim')
+    
+    
+    
+def graph_one(output_file):
+    psnr = []
+    ssim = []
+
+    with open(output_file, "r", newline="") as csv_file:
+        reader = csv.reader(csv_file)
+        next(reader)
+        for line in reader:
+            psnr.append(float(line[2]))
+            ssim.append(float(line[5]))
+            # if float(line[2]>33.4):
+            #     print(line[0])
+            
+    fig = plt.figure("psnr", figsize=(10, 20))
+    n = range(len(psnr))
+    psnr_fig = fig.add_subplot(211)
+    psnr_fig.plot(n, psnr, label='psnr')
+    ssim_fig = fig.add_subplot(212)
+    ssim_fig.plot(n, ssim, label='psnr')
+    plt.savefig('result/CF_TM2.png')
+    plt.show()
+    
+    print('save_img')
+    
+    
+    
+def find_data(output_file):
+    psnr = []
+    ssim = []
+
+    with open(output_file, "r", newline="") as csv_file:
+        reader = csv.reader(csv_file)
+        next(reader)
+        for line in reader:
+            psnr.append(float(line[2]))
+            ssim.append(float(line[5]))
+            if (float(line[2])<25.5):
+                print(line[0])
+    
+    
+    
+if __name__=='__main__':
+    output_file = "result/metrics_UGATIT_TM2.csv"
+    
+    # graph_one(output_file)
+    find_data(output_file)
