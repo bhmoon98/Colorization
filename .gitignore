@@ -2,8 +2,7 @@ dataset/
 src/test.py
 __pycache__/
 model/
-result/CF/
-result/UGATIT/
+result/
 *.csv
 zip/
 pair/
