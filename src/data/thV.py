@@ -6,6 +6,8 @@ sys.path.append("/mnt/e/Program/Python/Colorization")
 def cut_thV(GT_dir, imgs_dir, output_file):
     if not(os.path.exists(imgs_dir)):
         os.makedirs(imgs_dir)
+    else:
+        shutil.rmtree(imgs_dir)
     n = 0
     with open(output_file, "r", newline="") as csv_file:
         reader = csv.reader(csv_file)
@@ -14,7 +16,7 @@ def cut_thV(GT_dir, imgs_dir, output_file):
             if not(line[3]==0):
                 n+=1
                 print(line[0])
-                shutil.copy(os.path.join(GT_dir, line[0]+'_4.png'), os.path.join(imgs_dir, line[0][:-5]+'_4.png'))
+                shutil.copy(os.path.join(GT_dir, line[0]+'_4.png'), os.path.join(imgs_dir, line[0]+'_4.png'))
     print(n)
 
 
