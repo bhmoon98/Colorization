@@ -88,23 +88,7 @@ def graph_one(output_file):
     
     
     
-def find_data(output_file):
-    psnr = []
-    ssim = []
-
-    with open(output_file, "r", newline="") as csv_file:
-        reader = csv.reader(csv_file)
-        next(reader)
-        for line in reader:
-            psnr.append(float(line[2]))
-            ssim.append(float(line[5]))
-            if (float(line[2])<25.5):
-                print(line[0])
-    
-    
-    
 if __name__=='__main__':
     output_file = "result/metrics_UGATIT_TM2.csv"
     
-    # graph_one(output_file)
-    find_data(output_file)
+    graph_one(output_file)
