@@ -1,6 +1,7 @@
 import os, sys, csv
 sys.path.append("/mnt/e/Program/Python/Colorization")
 import matplotlib.pyplot as plt 
+import numpy as np
 
 
 
@@ -36,6 +37,7 @@ if __name__=='__main__':
     cGAN.plot(n, cGAN_psnr, 'r', label='cGAN')
     CF = fig.add_subplot(412)
     CF.plot(n, CF_psnr, 'g', label='CF')
+    print(np.mean(CF_psnr))
     DISCO = fig.add_subplot(413)
     DISCO.plot(n, DISCO_psnr, 'b', label='DISCO')
     UGATIT = fig.add_subplot(414)
@@ -51,6 +53,7 @@ if __name__=='__main__':
     cGAN.plot(n, cGAN_ssim, 'r', label='cGAN')
     CF = fig.add_subplot(412)
     CF.plot(n, CF_ssim, 'g', label='CF')
+    print(np.mean(CF_ssim))
     DISCO = fig.add_subplot(413)
     DISCO.plot(n, DISCO_ssim, 'b', label='DISCO')
     UGATIT = fig.add_subplot(414)
