@@ -8,6 +8,7 @@ def cut_thV(GT_dir, imgs_dir, output_file):
         os.makedirs(imgs_dir)
     else:
         shutil.rmtree(imgs_dir)
+        os.makedirs(imgs_dir)
     n = 0
     with open(output_file, "r", newline="") as csv_file:
         reader = csv.reader(csv_file)
@@ -18,6 +19,7 @@ def cut_thV(GT_dir, imgs_dir, output_file):
                 print(line[0])
                 shutil.copy(os.path.join(GT_dir, line[0]+'_4.png'), os.path.join(imgs_dir, line[0]+'_4.png'))
     print(n)
+
 
 
 if __name__=='__main__':
