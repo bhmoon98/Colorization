@@ -4,7 +4,7 @@ sys.path.append("/mnt/e/Program/Python/Colorization")
 
 
 def make_pair(GT_dir, imgs_dir, output_file):
-    pair_dir = 'pair'
+    pair_dir = 'pair/img'
     psnr = []
     ssim = []
     if os.path.exists(pair_dir):

@@ -4,5 +4,4 @@ __pycache__/
 model/
 result/
 *.csv
-zip/
 pair/
