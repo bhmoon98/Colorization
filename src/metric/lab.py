@@ -8,7 +8,7 @@ from scipy.linalg import sqrtm
 
 def argparser(parser):
     parser.add_argument('--GT_dir', default='Circuit/Crop/Color/test', type=str, help='GT dir')
-    parser.add_argument('--data_dir', default='Circuit/Crop/Color/test', type=str, help='Colorization dir')
+    parser.add_argument('--data_dir', default='result/UGATIT/TM2', type=str, help='Colorization dir')
     parser.add_argument('--save_dir', default='./', type=str, help='save dir')
     return parser
 

@@ -4,12 +4,12 @@ import shutil
 from sklearn.model_selection import train_test_split
 
 # 데이터셋을 로드
-image_folder = "dataset/TM2/Color"
+image_folder = "dataset/TM0/Gray"
 
 # 데이터를 저장할 폴더들의 경로
-train_dir = "dataset/TM2/train"
-val_dir = "dataset/TM2/val"
-test_dir = "dataset/TM2/test"
+train_dir = "dataset/Gray/train"
+val_dir = "dataset/Gray/val"
+test_dir = "dataset/Gray/test"
 
 # 폴더를 생성할 때 기존 폴더가 있으면 삭제하고 다시 생성
 if os.path.exists(train_dir):
