@@ -53,7 +53,7 @@ def train_model(args, gpu_num, gpu_no, is_ddp):
     val_loader = build_dataloader(dataset_info, mode='val', logger=logger, gpu_num=gpu_num, rank=gpu_no, is_ddp=is_ddp)
     if gpu_no == 0:
         logger.info(">> dataset (%d iters) was created" % len(train_loader))
-
+    
     ## MODEL >>>>>>>>>>>>>>>
     spix_model = eval('model.'+args.model)(inChannel=1, outChannel=9, batchNorm=True)
     ## distributed model

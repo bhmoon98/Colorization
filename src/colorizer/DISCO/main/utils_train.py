@@ -80,8 +80,8 @@ def build_dataloader(dataset_info, mode, logger, gpu_num=1, rank=0, is_ddp=False
             
         if mode == 'val':
             data_dir = os.path.join(data_dir, 'val')
-        data_color_dir=os.path.join(data_dir, 'color')
-        data_gray_dir=os.path.join(data_dir, 'gray')
+        data_color_dir=os.path.join(data_dir, 'Color')
+        data_gray_dir=os.path.join(data_dir, 'Gray')
         file_list_color = get_filelist(data_color_dir)
         file_list_color.sort()
         file_list_gray = get_filelist(data_gray_dir)

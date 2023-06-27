@@ -3,7 +3,7 @@ python -m src.data.classificationData data/
 
 ---train---
 #spixel
-python -m main.spixelseg.train_spixel --dataset custom --data_dir ~/Python/Colorizer/dataset/crop --save_dir ~/Python/Colorizer/models --exp_name spixel_
+python -m main.spixelseg.train_spixel --dataset custom --data_dir ../../../dataset/TM2_THV --save_dir ../../../model --exp_name spixel_TM2_THV
 #colorizer
 python -m main.colorizer.train_colorizer --model AnchorColorProb --dataset custom --batch_size 16 --data_dir ~/Python/Colorizer/dataset/crop --save_dir ~/Python/Colorizer/models --ckpt_dir  ~/Python/Colorizer/models/backbone/spix16ab-imagenet_last.pth.tar --exp_name disco_crop_2 --dense_pos --enhanced
 
