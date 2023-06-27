@@ -25,16 +25,13 @@ def main():
             nonlocal results, i
             if event.key == '1':
                 results['result'][i] = 'a'
-                plt.close()
             elif event.key == '2':
                 results['result'][i] = 'b'
-                plt.close()
             elif event.key == '3':
                 results['result'][i] = 'c'
                 plt.close()
             elif event.key == '4':
                 results['result'][i] = 'd'
-                plt.close()
             elif event.key == 'j':
                 results['result'][i] = 1
             elif event.key == 'l':

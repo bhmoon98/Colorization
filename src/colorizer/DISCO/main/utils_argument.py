@@ -71,7 +71,7 @@ def pcolor_argparser(parser):
     parser.add_argument('--dataset', default='imagenet', type=str)
     parser.add_argument('--input_dim', default=256, type=int)
     parser.add_argument('--image_dim', default=224, type=int)
-    parser.add_argument('--batch_size', default=16, type=int, help='batch size per GPU')
+    parser.add_argument('--batch_size', default=4, type=int, help='batch size per GPU')
     
     parser.add_argument('--data_dir', default='../../../0DataZoo/Dataset_C/ILSVRC2012/', type=str, help='dataset directory')
     parser.add_argument('--ckpt_dir', default='../../Saved/', type=str, help='pretrained weight')

@@ -90,6 +90,8 @@ def train_model(args, gpu_num, gpu_no, is_ddp):
     ## ce_loss
     ce_loss = loss.AnchorColorProbLoss(hint2regress=args.hint2regress, enhanced=args.enhanced, \
                                             with_grad=args.in_gradient, mpdist=is_ddp, gpu_no=gpu_no)
+    
+    print('check')
 
     meta_dict = pack_meta_data(args, img_dir, gpu_no)
     ## LOOP >>>>>>>>>>>>>>>
@@ -281,6 +283,7 @@ def pack_meta_data(args, img_dir, gpu_no):
 
 
 if __name__ == '__main__':
+    torch.backends.cuda.max_split_size_mb = 200
     parser = argparse.ArgumentParser()
     parser = pcolor_argparser(parser)
     args = parser.parse_args()

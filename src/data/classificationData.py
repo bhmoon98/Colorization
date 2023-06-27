@@ -1,4 +1,4 @@
-import cv2
+import cv2, shutil
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -23,6 +23,7 @@ def main():
     end_index = int(input('END INDEX: '))
 
     i = start_index
+    print(i, min(end_index, len(df)))
     while (i<min(end_index, len(df))):
         def on_key_press(event):
             nonlocal df, i
@@ -52,8 +53,6 @@ def main():
         color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
         gray_image = cv2.cvtColor(gray_image, cv2.COLOR_BGR2GRAY)
 
-        diff = get_ssim_diff_image(color_image, gray_image)
-
         plt.subplot(121)
         plt.xlabel('COLOR IMAGE')
         plt.imshow(color_image, cmap='gray')
@@ -67,6 +66,8 @@ def main():
         plt.show()
 
         df.to_csv(RESULT_PATH, index=False)
+        if i%100 == 0:
+            shutil.copyfile('E:/Program/Python/Colorization/result/_csv/results_TM2_L.csv', 'E:/Program/Python/Colorization/result/_csv/backup.csv')
             
         i+=1
 
@@ -77,14 +78,6 @@ def get_color_path(label: str) -> str:
 
 def get_gray_path(label: str) -> str:
     return f"{GRAY_PATH}/{label}_2.jpg"
-
-
-def get_ssim_diff_image(color_image: np.ndarray, gray_image: np.ndarray) -> np.ndarray:
-    color_image = cv2.resize(color_image, gray_image.shape)
-
-    (_, diff) = ssim(color_image, gray_image, full=True)
-    
-    return diff
 
 
 if __name__=='__main__':

@@ -1,9 +1,10 @@
 import sys, os, csv, cv2
 sys.path.append("/mnt/e/Program/Python/Colorization")
-
+import torch
 
 
 if __name__=='__main__':
-    test = cv2.imread('dataset/Colorization/Color/001_001_1_4.png', cv2.IMREAD_COLOR)
-    cv2.imshow('test', test)
-    cv2.waitKey(0)
+    import gc
+
+    gc.collect()
+    torch.cuda.empty_cache()

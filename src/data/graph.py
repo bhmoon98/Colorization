@@ -32,30 +32,38 @@ def graph_all(output_file):
     n = range(len(cGAN_psnr))
     cGAN = fig.add_subplot(411)
     cGAN.plot(n, cGAN_psnr, 'r', label='cGAN')
+    print(np.mean(cGAN_psnr))
     CF = fig.add_subplot(412)
     CF.plot(n, CF_psnr, 'g', label='CF')
     print(np.mean(CF_psnr))
     DISCO = fig.add_subplot(413)
     DISCO.plot(n, DISCO_psnr, 'b', label='DISCO')
+    print(np.mean(DISCO_psnr))
     UGATIT = fig.add_subplot(414)
     UGATIT.plot(n, UGATIT_psnr, 'y', label='UGATIT')
-    plt.savefig('psnr_TM1.png')
+    print(np.mean(UGATIT_psnr))
+    fig.legend(loc='upper right')
+    plt.savefig('result/_graph/psnr_TM1.png')
     plt.show()
     
     print('save_psnr')
 
-    fig = plt.figure("psnr")
+    fig = plt.figure("ssim", figsize=(10, 10))
     n = range(len(cGAN_ssim))
     cGAN = fig.add_subplot(411)
     cGAN.plot(n, cGAN_ssim, 'r', label='cGAN')
+    plt.legend(loc='upper right')
     CF = fig.add_subplot(412)
     CF.plot(n, CF_ssim, 'g', label='CF')
     print(np.mean(CF_ssim))
     DISCO = fig.add_subplot(413)
     DISCO.plot(n, DISCO_ssim, 'b', label='DISCO')
+    print(np.mean(DISCO_psnr))
     UGATIT = fig.add_subplot(414)
     UGATIT.plot(n, UGATIT_ssim, 'y', label='UGATIT')
-    plt.savefig('result/ssim_TM1.png')
+    print(np.mean(UGATIT_psnr))
+    fig.legend(loc='upper right')
+    plt.savefig('result/_graph/ssim_TM1.png')
     plt.show()
     
     print('save_ssim')
@@ -89,6 +97,6 @@ def graph_one(output_file):
     
     
 if __name__=='__main__':
-    output_file = "result/metrics_UGATIT_TM2.csv"
+    output_file = "result/_csv/metrics_TM1.csv"
     
-    graph_one(output_file)
+    graph_all(output_file)
