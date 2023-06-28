@@ -9,7 +9,7 @@ from scipy.linalg import sqrtm
 
 def argparser(parser):
     parser.add_argument('--GT_dir', default='dataset/TM2/Color', type=str, help='GT dir')
-    parser.add_argument('--data_dir', default='result/CF/TM2', type=str, help='Colorization dir')
+    parser.add_argument('--data_dir', default='result/DISCO/TM2_THV', type=str, help='Colorization dir')
     parser.add_argument('--save_dir', default='result', type=str, help='save dir')
     return parser
 

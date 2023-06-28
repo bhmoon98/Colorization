@@ -1,3 +1,5 @@
+/mnt/e/Program/Python/Colorization/
+
 python -m src.data.classificationData data/
 
 
@@ -9,8 +11,7 @@ python -m main.colorizer.train_colorizer --model AnchorColorProb --dataset custo
 
 
 --tensorboard--
-tensorboard --logdir=~/Python/Colorizer/models/spixel_2
-
+tensorboard --logdir=/mnt/e/Program/Python/Colorization/model/disco_TM2_THV
 
 ---test---
-python -m main.colorizer.inference  --data ~/Python/Colorizer/dataset/crop/test/gray --checkpt ~/Python/Colorizer/models/disco_crop_2/checkpts/model_best.pth.tar --name ~/Python/Colorizer/result/disco_crop_2/ --n_clusters 8
+python -m main.colorizer.inference  --data ../../../dataset/TM2_THV/test/Gray --checkpt /mnt/e/Program/Python/Colorization/model/disco_TM2_THV/checkpts/model_best.pth.tar --name ../../../result/DISCO/TM2_THV/ --n_clusters 8
