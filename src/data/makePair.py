@@ -26,6 +26,6 @@ def make_pair(GT_dir, imgs_dir, output_file):
 
 if __name__=='__main__':
     GT_dir = 'dataset/TM2/Color'
-    imgs_dir = 'result/UGATIT/TM2'
+    imgs_dir = 'dataset/TM0/Gray'
     output_file = "result/metrics_UGATIT_TM2.csv"
     make_pair(GT_dir, imgs_dir, output_file)

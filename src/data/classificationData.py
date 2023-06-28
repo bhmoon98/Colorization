@@ -22,54 +22,36 @@ def main():
     start_index = int(input('START INDEX: '))
     end_index = int(input('END INDEX: '))
 
-    i = start_index
+    i= start_index
     print(i, min(end_index, len(df)))
     while (i<min(end_index, len(df))):
-        def on_key_press(event):
-            nonlocal df, i
-            print(i)
-            if event.key == REMAIN_KEY:
-                df.loc[i ,'result'] = 1
-                plt.close()
-            elif event.key == REMOVE_KEY:
-                df.loc[i ,'result'] = 0
-                plt.close()
-            elif event.key == UNDO_KEY:
-                if i < 1:
-                    return
-                i = i-2
-                plt.close()
-            else:
-                return
-
-        fig = plt.figure(num=0)
-        fig.canvas.mpl_connect('key_press_event', on_key_press)
-
         label = df['label'][i]
 
-        color_image = cv2.imread(get_color_path(label))
-        gray_image = cv2.imread(get_gray_path(label))
-
-        color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
-        gray_image = cv2.cvtColor(gray_image, cv2.COLOR_BGR2GRAY)
-
-        plt.subplot(121)
-        plt.xlabel('COLOR IMAGE')
-        plt.imshow(color_image, cmap='gray')
-
-        plt.subplot(122)
-        plt.xlabel('GRAY IMAGE')
-        plt.imshow(gray_image, cmap='gray')
-
-        plt.title(f"SSIM={df['ssim'][i]:.1f} | PSNR={df['psnr'][i]:.1f}")
-
-        plt.show()
-
-        df.to_csv(RESULT_PATH, index=False)
+        color_image = cv2.resize(cv2.imread(get_color_path(label)), (256, 256))
+        gray_image = cv2.resize(cv2.imread(get_gray_path(label)), (256, 256))
+        
+        imgs = np.concatenate((color_image, gray_image), axis = 1)
+        
+        cv2.imshow('image', imgs)
+        
+        while True:
+            key = cv2.waitKey()
+            if key == ord(REMAIN_KEY):
+                df.loc[i ,'result'] = 1
+                break
+            elif key == ord(REMOVE_KEY):
+                df.loc[i ,'result'] = 0
+                break
+            elif key == ord(UNDO_KEY):
+                i = i-2
+                break
         if i%100 == 0:
-            shutil.copyfile('E:/Program/Python/Colorization/result/_csv/results_TM2_L.csv', 'E:/Program/Python/Colorization/result/_csv/backup.csv')
-            
+            shutil.copy('E:/Program/Python/Colorization/result/_csv/results_TM2_L.csv', 'E:/Program/Python/Colorization/result/_csv/backup.csv')
+        
+        df.to_csv(RESULT_PATH, index=False)
+        print(i)
         i+=1
+    df.to_csv(RESULT_PATH, index=False)
 
 
 def get_color_path(label: str) -> str:
@@ -80,9 +62,13 @@ def get_gray_path(label: str) -> str:
     return f"{GRAY_PATH}/{label}_2.jpg"
 
 
+def get_ssim_diff_image(color_image: np.ndarray, gray_image: np.ndarray) -> np.ndarray:
+    color_image = cv2.resize(color_image, gray_image.shape)
+
+    (_, diff) = ssim(color_image, gray_image, full=True)
+    
+    return diff
+
+
 if __name__=='__main__':
     main()
-
-        
-   
-        
