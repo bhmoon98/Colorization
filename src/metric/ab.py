@@ -9,8 +9,8 @@ from scipy.linalg import sqrtm
 
 def argparser(parser):
     parser.add_argument('--GT_dir', default='dataset/TM2/Color', type=str, help='GT dir')
-    parser.add_argument('--data_dir', default='result/DISCO/TM2_THV', type=str, help='Colorization dir')
-    parser.add_argument('--save_dir', default='result', type=str, help='save dir')
+    parser.add_argument('--data_dir', default='result/TM1', type=str, help='Colorization dir')
+    parser.add_argument('--save_dir', default='result/_csv/metrics_TM1.csv', type=str, help='save dir')
     return parser
 
 
@@ -59,7 +59,7 @@ def fid(img_1, img_2):
 
 
 
-def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
+def cal_metrics_one(imgs_dir_1, imgs_dir_2, save_dir):
     img_list_1 = sorted(os.listdir(imgs_dir_1))
     img_list_2 = sorted(os.listdir(imgs_dir_2))
     fid_list = []
@@ -71,7 +71,7 @@ def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
     
     save_name = 'metrics_CF_TM2.csv'
     header = ['img_1', 'img_2', 
-              'psnr', 'psnr_a', 'psnr_b'
+              'psnr', 'psnr_a', 'psnr_b',
               'ssim', 'ssim_a', 'ssim_b']
     
     save_file = os.path.join(save_dir, save_name)
@@ -112,6 +112,83 @@ def cal_metrics(imgs_dir_1, imgs_dir_2, save_dir):
     print('ssim 평균:', np.mean(ssim_list))
     
     print(f"save")
+    
+    
+
+def cal_metrics_all(GTs_dir: str, imgs_dir: str, save_dir: str):
+    GT_list = sorted(os.listdir(GTs_dir))
+    cGAN_list = sorted(os.listdir(os.path.join(imgs_dir, 'cGAN')))
+    CF_list = sorted(os.listdir(os.path.join(imgs_dir, 'ColorFormer')))
+    DISCO_list = sorted(os.listdir(os.path.join(imgs_dir, 'DISCO')))
+    UGATIT_list = sorted(os.listdir(os.path.join(imgs_dir, 'UGATIT')))
+    
+    header = ['name', 
+              'cGAN_psnr', 'cGAN_ssim', 
+              'CF_psnr', 'CF_ssim', 
+              'DISCO_psnr', 'DISCO_ssim', 
+              'UGATIT_psnr', 'UGATIT_ssim']
+
+    save_file = save_dir
+
+    metrics_list = []
+    progress = 1
+    total_imgs = len(GT_list)
+
+    print('start')
+    with open(save_file, "w", newline="") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(header)
+        for GT_dir, cGAN_dir, CF_dir, DISCO_dir, UGATIT_dir in zip(GT_list, cGAN_list, CF_list, DISCO_list, UGATIT_list):
+            img_GT = cv2.cvtColor(cv2.resize(cv2.imread(os.path.join(GTs_dir, GT_dir), cv2.IMREAD_COLOR),(256, 256), interpolation=cv2.INTER_CUBIC), cv2.COLOR_BGR2LAB)
+            img_cGAN = cv2.cvtColor(cv2.resize(cv2.imread(os.path.join(imgs_dir, 'cGAN', cGAN_dir), cv2.IMREAD_COLOR),(256, 256), interpolation=cv2.INTER_CUBIC), cv2.COLOR_BGR2LAB)
+            img_CF = cv2.cvtColor(cv2.resize(cv2.imread(os.path.join(imgs_dir, 'ColorFormer', CF_dir), cv2.IMREAD_COLOR),(256, 256), interpolation=cv2.INTER_CUBIC), cv2.COLOR_BGR2LAB)
+            img_DISCO = cv2.cvtColor(cv2.resize(cv2.imread(os.path.join(imgs_dir, 'DISCO', DISCO_dir), cv2.IMREAD_COLOR),(256, 256), interpolation=cv2.INTER_CUBIC), cv2.COLOR_BGR2LAB)
+            img_UGATIT = cv2.cvtColor(cv2.resize(cv2.imread(os.path.join(imgs_dir, 'UGATIT', UGATIT_dir), cv2.IMREAD_COLOR),(256, 256), interpolation=cv2.INTER_CUBIC), cv2.COLOR_BGR2LAB)
+
+            a_GT = img_GT[:,:,1]+128.
+            a_cGAN = img_cGAN[:,:,1]+128.
+            a_CF = img_CF[:,:,1]+128.
+            a_DISCO = img_DISCO[:,:,1]+128.
+            a_UGATIT = img_UGATIT[:,:,1]+128.
+
+            b_GT = img_GT[:,:,2]+128.
+            b_cGAN = img_cGAN[:,:,2]+128.
+            b_CF = img_CF[:,:,2]+128.
+            b_DISCO = img_DISCO[:,:,2]+128.
+            b_UGATIT = img_UGATIT[:,:,2]+128.
+
+            metrics = [GT_dir, 
+                       (psnr(a_GT, a_cGAN)+psnr(b_GT, b_cGAN))/2, (ssim(a_GT, a_cGAN)+ssim(b_GT, b_cGAN))/2,
+                       (psnr(a_GT, a_CF)+psnr(b_GT, b_CF))/2, (ssim(a_GT, a_CF)+ssim(b_GT, b_CF))/2,
+                       (psnr(a_GT, a_DISCO)+psnr(b_GT, b_DISCO))/2, (ssim(a_GT, a_DISCO)+ssim(b_GT, b_DISCO))/2,
+                       (psnr(a_GT, a_UGATIT)+psnr(b_GT, b_UGATIT))/2, (ssim(a_GT, a_UGATIT)+ssim(b_GT, b_UGATIT))/2]
+
+            writer.writerow(metrics)
+            metrics_list.append(metrics)
+            print(f'{progress}/{total_imgs}')
+            progress +=1
+
+
+    print('---cGAN---')
+    cGAN_psnr = [item[1] for item in metrics]
+    print('psnr 평균:', np.mean(cGAN_psnr))
+    cGAN_ssim = [item[2] for item in metrics]
+    print('ssim 평균:', np.mean(cGAN_ssim))
+    print('---CF---')
+    CF_psnr = [item[3] for item in metrics]
+    print('psnr 평균:', np.mean(CF_psnr))
+    CF_ssim = [item[4] for item in metrics]
+    print('ssim 평균:', np.mean(CF_ssim))
+    print('---cGAN---')
+    DISCO_psnr = [item[5] for item in metrics]
+    print('psnr 평균:', np.mean(DISCO_psnr))
+    DISCO_ssim = [item[6] for item in metrics]
+    print('ssim 평균:', np.mean(DISCO_ssim))
+    print('---cGAN---')
+    UGATIT_psnr = [item[7] for item in metrics]
+    print('psnr 평균:', np.mean(UGATIT_psnr))
+    UGATIT_ssim = [item[8] for item in metrics]
+    print('ssim 평균:', np.mean(UGATIT_ssim))
 
 
 
@@ -120,4 +197,4 @@ if __name__=="__main__":
     parser = argparser(parser)
     args = parser.parse_args()
     
-    cal_metrics(args.GT_dir, args.data_dir, args.save_dir)
+    cal_metrics_all(args.GT_dir, args.data_dir, args.save_dir)

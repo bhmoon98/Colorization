@@ -47,7 +47,6 @@ if __name__ == '__main__':
         cv2.imwrite(os.path.join(save_dir, '1_'+dir.split('/')[-1]), sharpened_image)
         if i==0:
             break
-            pass
         i+=1
         
     
