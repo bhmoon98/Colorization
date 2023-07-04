@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 from skimage.metrics import structural_similarity as ssim
 
-RESULT_PATH = 'E:/Program/Python/Colorization/result/_csv/results_TM2_L.csv'
-COLOR_PATH = 'E:/Program/Python/Colorization/dataset/TM2'
-GRAY_PATH = 'E:/Program/Python/Colorization/dataset/TM0/Gray'
+RESULT_PATH = 'E:/Program/Python/Colorization/result/_csv/results_TM3.csv'
+COLOR_PATH = 'E:/Program/Python/Colorization/dataset/data3/data3_TM3'
+GRAY_PATH = 'E:/Program/Python/Colorization/dataset/data3/Gray'
 
 REMAIN_KEY = 'j'
 REMOVE_KEY = 'k'
@@ -26,6 +26,7 @@ def main():
     print(i, min(end_index, len(df)))
     while (i<min(end_index, len(df))):
         label = df['label'][i]
+        maxVal = df['maxVal'][i]
         color_image = cv2.resize(cv2.imread(get_color_path(label)), (256, 256))
         gray_image = cv2.resize(cv2.imread(get_gray_path(label)), (256, 256))
         diff_image = get_ssim_diff_image(color_image, gray_image)
@@ -34,6 +35,7 @@ def main():
         imgs = np.concatenate((rec, imgs), axis=0)
         font = cv2.FONT_ITALIC
         imgs = cv2.putText(imgs, label, (0, 20), font, 0.5, (0 ,0 ,0), 1)
+        imgs = cv2.putText(imgs, str(maxVal), (500, 20), font, 0.5, (0 ,0 ,0), 1)
         cv2.imshow('image', imgs)
         
         while True:
@@ -48,7 +50,7 @@ def main():
                 i = i-2
                 break
         if i%100 == 0:
-            shutil.copy('E:/Program/Python/Colorization/result/_csv/results_TM2_L.csv', 'E:/Program/Python/Colorization/result/_csv/backup.csv')
+            shutil.copy(RESULT_PATH, 'E:/Program/Python/Colorization/result/_csv/backup.csv')
         
         df.to_csv(RESULT_PATH, index=False)
         print(i)
@@ -61,7 +63,7 @@ def get_color_path(label: str) -> str:
 
 
 def get_gray_path(label: str) -> str:
-    return f"{GRAY_PATH}/{label}_2.jpg"
+    return f"{GRAY_PATH}/{label}_2.png"
 
 
 def get_ssim_diff_image(color_image: np.ndarray, gray_image: np.ndarray) -> np.ndarray:
@@ -72,14 +74,14 @@ def get_ssim_diff_image(color_image: np.ndarray, gray_image: np.ndarray) -> np.n
 
     kernel = np.ones((3, 3), np.float32) / 25
     denoised = color_image
-    denoised = np.where(color_image < 130, 0, 255)
-    gray_image = np.where(gray_image < 130, 0, 255)
+    denoised = np.where(color_image < 170, 0, 255)
+    gray_image = np.where(gray_image < 170, 0, 255)
     denoised = denoised.astype(np.float32)
 
     kernel = np.array([[0, -1, 0], [-1, 4, -1], [0, -1, 0]], dtype=np.int8)
 
     kernel = np.ones(9).reshape(3, 3) / 9
-    denoised = cv2.filter2D(denoised, -1, kernel)
+    # denoised = cv2.filter2D(denoised, -1, kernel)
 
     diff = np.absolute(denoised - gray_image)
     diff = 255 - diff

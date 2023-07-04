@@ -149,7 +149,7 @@ class GetClassWeights:
 class ColorLabel:
     def __init__(self, lambda_=0.5, device='cuda'):
         self.cielab = cielab.CIELAB()
-        self.q_to_ab = torch.from_numpy(self.cielab.q_to_ab).to(device)
+        self.q_to_lab = torch.from_numpy(self.cielab.q_to_lab).to(device)
         prior = torch.from_numpy(self.cielab.gamut.prior).to(device)
         uniform = torch.zeros_like(prior)
         uniform[prior>0] = 1 / (prior>0).sum().type_as(uniform)
@@ -157,11 +157,13 @@ class ColorLabel:
         self.weights /= torch.sum(prior * self.weights)
 
     def visualize_label(self, step=3):
-        height, width = 200, 313*step
-        label_lab = np.ones((height,width,3), np.float32)
-        for x in range(313):
-            ab = self.cielab.q_to_ab[x,:]
-            label_lab[:,step*x:step*(x+1),1:] = ab / 110.
+        height, width = 200, self.cielab.gamut.EXPECTED_SIZE*step
+        label_lab = np.ones((height,width,4), np.float32)
+        for x in range(self.cielab.gamut.EXPECTED_SIZE):
+            l = self.cielab.q_to_lab[x, 0]
+            label_lab[:,step*x:step*(x+1),1] = l / 100.
+            ab = self.cielab.q_to_lab[x, 1:]
+            label_lab[:,step*x:step*(x+1),2:] = ab / 110.
         label_lab[:,:,0] = np.zeros((height,width), np.float32)
         return label_lab
 
@@ -174,22 +176,26 @@ class ColorLabel:
         #return self.weights[batch_gt_q.argmax(dim=1, keepdim=True)]
         return self.weights[batch_gt_indx]
 
-    def encode_ab2ind(self, batch_ab, neighbours=5, sigma=5.0):
-        batch_ab = batch_ab * 110.
-        n, _, h, w = batch_ab.shape
+    def encode_ab2ind(self, batch_lab, neighbours=5, sigma=5.0):
+        n, _, h, w = batch_lab.shape
         m = n * h * w
         # find nearest neighbours
-        ab_ = batch_ab.permute(1, 0, 2, 3).reshape(2, -1) # (2, n*h*w) 
-        cdist = torch.cdist(self.q_to_ab, ab_.t())
+        batch_lab = batch_lab.permute(1, 0, 2, 3)
+        batch_l = batch_lab[0, :, :, :]*100.
+        batch_ab = batch_lab[1:, :, :, :]*110.
+        batch_lab[0, :, :, :] = batch_l
+        batch_lab[1:, :, :, :] = batch_ab
+        lab_ = batch_lab.reshape(3, -1) # (3, n*h*w) 
+        cdist = torch.cdist(self.q_to_lab, lab_.t())
         nns = cdist.argsort(dim=0)[:neighbours, :]
         # gaussian weighting
-        nn_gauss = batch_ab.new_zeros(neighbours, m)
+        nn_gauss = batch_lab.new_zeros(neighbours, m)
         for i in range(neighbours):
-            nn_gauss[i, :] = self._gauss_eval(self.q_to_ab[nns[i, :], :].t(), ab_, sigma)
+            nn_gauss[i, :] = self._gauss_eval(self.q_to_lab[nns[i, :], :].t(), lab_, sigma)
         nn_gauss /= nn_gauss.sum(dim=0, keepdim=True)
         # expand
         bins = self.cielab.gamut.EXPECTED_SIZE
-        q = batch_ab.new_zeros(bins, m)
+        q = batch_lab.new_zeros(bins, m)
         q[nns, torch.arange(m).repeat(neighbours, 1)] = nn_gauss        
         return q.reshape(bins, n, h, w).permute(1, 0, 2, 3)
 
@@ -204,17 +210,20 @@ class ColorLabel:
             batch_indexs = batch_indexs[:,T:T+1,:,:]
             #batch_indexs = torch.where(sorted_probs[:,T:T+1,:,:] > 0.25, batch_indexs[:,T:T+1,:,:], batch_indexs[:,0:1,:,:])
             ab = torch.stack([
-                self.q_to_ab.index_select(0, q_i.flatten()).reshape(h,w,2).permute(2,0,1)
+                self.q_to_lab.index_select(0, q_i.flatten()).reshape(h,w,3).permute(2,0,1)
                 for q_i in batch_indexs])
         else:
             batch_q = torch.exp(batch_q / T)
             batch_q /= batch_q.sum(dim=1, keepdim=True)
-            a = torch.tensordot(batch_q, self.q_to_ab[:,0], dims=((1,), (0,)))
+            l = torch.tensordot(batch_q, self.q_to_lab[:,0], dims=((1,), (0,)))
+            l = l.unsqueeze(dim=1)
+            a = torch.tensordot(batch_q, self.q_to_lab[:,1], dims=((1,), (0,)))
             a = a.unsqueeze(dim=1)
-            b = torch.tensordot(batch_q, self.q_to_ab[:,1], dims=((1,), (0,)))
+            b = torch.tensordot(batch_q, self.q_to_lab[:,2], dims=((1,), (0,)))
             b = b.unsqueeze(dim=1)
             ab = torch.cat((a, b), dim=1)
         ab = ab / 110.
+        l = l / 100.
         return ab.type(batch_q.dtype)
 
 

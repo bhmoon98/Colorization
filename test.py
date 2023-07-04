@@ -1,10 +1,9 @@
 import sys, os, csv, cv2
 sys.path.append("/mnt/e/Program/Python/Colorization")
 import torch
+import numpy as np
 
 
 if __name__=='__main__':
-    import gc
-
-    gc.collect()
-    torch.cuda.empty_cache()
+    a = [1, 2, 3, 4]
+    print(a/np.sum(a))
