@@ -33,6 +33,7 @@ class AnchorColorProb(nn.Module):
     def __init__(self, inChannel=1, outChannel=313, sp_size=16, d_model=64, use_dense_pos=True, spix_pos=False, learning_pos=False, \
                 n_clusters=8, random_hint=False, hint2regress=False, enhanced=False, use_mask=False, rank=0):
         super(AnchorColorProb, self).__init__()
+        self.cielab = cielab.CIELAB()
         self.sp_size = sp_size
         self.spix_pos = spix_pos
         self.use_token_mask = use_mask
@@ -44,7 +45,7 @@ class AnchorColorProb(nn.Module):
             self.enhanceNet = HourGlass2(inChannel=64+1, outChannel=2, resNum=3, normLayer=nn.BatchNorm2d)
 
         ## transformer architecture
-        self.n_vocab = 313
+        self.n_vocab = self.cielab.gamut.EXPECTED_SIZE
         self.hint_num = n_clusters
         d_model, dim_feedforward, nhead = d_model, 4*d_model, 8
         dropout, activation = 0.1, "relu"
@@ -180,7 +181,7 @@ class AnchorColorProb(nn.Module):
             dec_out, _ = self.hintpath(hint_seq, src_pos_seq, src_pad_mask)
         else:
             token_labels_ = sampled_token_labels if test_mode else token_labels
-            label_map = F.one_hot(token_labels_, num_classes=313).squeeze(1).float()
+            label_map = F.one_hot(token_labels_, num_classes=self.cielab.gamut.EXPECTED_SIZE).squeeze(1).float()
             label_seq = label_map.permute(0, 3, 1, 2).flatten(2).permute(2, 0, 1)
             hint_seq = self.trg_word_emb(torch.cat([src_seq, mask_seq * label_seq, mask_seq], dim=2))
             dec_out, _ = self.hintpath(hint_seq, src_pos_seq, src_pad_mask)

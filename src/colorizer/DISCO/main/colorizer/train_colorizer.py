@@ -17,6 +17,7 @@ os.chdir(sys.path[0])
 sys.path.append("..")
 import main._init_paths as _init_paths
 from utils_argument import pcolor_argparser
+from utils.cielab import CIELAB
 from utils_train import *
 import models.model as model 
 import models.loss as loss 
@@ -53,7 +54,8 @@ def train_model(args, gpu_num, gpu_no, is_ddp):
         logger.info(">> dataset (%d iters) was created" % len(train_loader))
 
     ## MODEL >>>>>>>>>>>>>>>
-    hcolor_model = eval('model.'+args.model)(inChannel=1, outChannel=313, sp_size=args.psize, use_dense_pos=args.dense_pos,\
+    cielab = CIELAB()
+    hcolor_model = eval('model.'+args.model)(inChannel=1, outChannel=cielab.gamut.EXPECTED_SIZE, sp_size=args.psize, use_dense_pos=args.dense_pos,\
                                              n_clusters=args.n_clusters, random_hint=args.random_hint, spix_pos=args.spix_pos, \
                                              learning_pos=args.learning_pos, hint2regress=args.hint2regress, enhanced=args.enhanced, rank=gpu_no)
     ckpt_name = 'spix8ab-imagenet_last.pth.tar' if args.psize == 8 else 'spix16ab-imagenet_last.pth.tar'

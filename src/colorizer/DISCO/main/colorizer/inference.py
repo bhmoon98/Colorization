@@ -17,6 +17,7 @@ from utils_train import load_checkpoint
 import models.model as model 
 import models.basic as basic 
 import utils.util as util 
+from utils.cielab import CIELAB
 import models.clusterkit as clusterkit
 from skimage import segmentation, color
 
@@ -63,7 +64,8 @@ def test_model(data_dir, model_name, sp_size, checkpt_path, name, seq_model_args
     print('-saving dir:%s'%save_dir)
     
     ## MODEL >>>>>>>>>>>>>>>
-    color_model = eval('model.'+args.model)(inChannel=1, outChannel=313, sp_size=args.psize, d_model=args.d_model,\
+    cielab = CIELAB()
+    color_model = eval('model.'+args.model)(inChannel=1, outChannel=cielab.gamut.EXPECTED_SIZE, sp_size=args.psize, d_model=args.d_model,\
                                             use_dense_pos=args.dense_pos, spix_pos=args.spix_pos, learning_pos=args.learning_pos,\
                                             n_clusters=args.n_clusters, random_hint=args.random_hint, \
                                             hint2regress=args.hint2regress, enhanced=True)

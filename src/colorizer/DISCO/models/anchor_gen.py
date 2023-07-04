@@ -4,12 +4,14 @@ import torch.nn.functional as F
 from torch.autograd import Function
 import basic, clusterkit
 import pdb
+from utils import util, cielab
 
 class AnchorAnalysis:
     def __init__(self, mode, colorLabeler):
         ## anchor generating mode: 1.random; 2.clustering
         self.mode = mode
         self.colorLabeler = colorLabeler
+        self.cielab = cielab.CIELAB()
 
     def _detect_correlation(self, data_tensors, color_probs, hint_masks, thres=0.1):
         N,C,H,W = data_tensors.shape
@@ -48,7 +50,7 @@ class AnchorAnalysis:
         ## (N,K,C) = (N,K,K) X (N,K,C)
         anchor_prob = torch.matmul(adj_matrix, prob_vecs.permute(0,2,1)) / torch.sum(adj_matrix, dim=2, keepdim=True)
         updated_prob_vecs = anchor_prob.permute(0,2,1) * mask_vecs + (1-mask_vecs) * prob_vecs
-        color_probs = updated_prob_vecs.view(N,313,H,W)
+        color_probs = updated_prob_vecs.view(N,self.cielab.gamut.EXPECTED_SIZE,H,W)
         return color_probs, anchor_adj_matrix
 
     def _sample_anchor_colors(self, pred_prob, hint_mask, T=0):
