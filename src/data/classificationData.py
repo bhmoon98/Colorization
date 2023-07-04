@@ -5,7 +5,7 @@ import pandas as pd
 from skimage.metrics import structural_similarity as ssim
 
 RESULT_PATH = 'E:/Program/Python/Colorization/result/_csv/results_TM2_L.csv'
-COLOR_PATH = 'E:/Program/Python/Colorization/dataset/TM2/Color'
+COLOR_PATH = 'E:/Program/Python/Colorization/dataset/TM2'
 GRAY_PATH = 'E:/Program/Python/Colorization/dataset/TM0/Gray'
 
 REMAIN_KEY = 'j'
@@ -26,12 +26,14 @@ def main():
     print(i, min(end_index, len(df)))
     while (i<min(end_index, len(df))):
         label = df['label'][i]
-
         color_image = cv2.resize(cv2.imread(get_color_path(label)), (256, 256))
         gray_image = cv2.resize(cv2.imread(get_gray_path(label)), (256, 256))
-        
-        imgs = np.concatenate((color_image, gray_image), axis = 1)
-        
+        diff_image = get_ssim_diff_image(color_image, gray_image)
+        rec = np.zeros((30, 256*3, 3), np.uint8) + 255
+        imgs = np.concatenate((color_image, gray_image, diff_image), axis=1)
+        imgs = np.concatenate((rec, imgs), axis=0)
+        font = cv2.FONT_ITALIC
+        imgs = cv2.putText(imgs, label, (0, 20), font, 0.5, (0 ,0 ,0), 1)
         cv2.imshow('image', imgs)
         
         while True:
@@ -63,10 +65,27 @@ def get_gray_path(label: str) -> str:
 
 
 def get_ssim_diff_image(color_image: np.ndarray, gray_image: np.ndarray) -> np.ndarray:
+    color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
+    gray_image = cv2.cvtColor(gray_image, cv2.COLOR_BGR2GRAY)
+
     color_image = cv2.resize(color_image, gray_image.shape)
 
-    (_, diff) = ssim(color_image, gray_image, full=True)
+    kernel = np.ones((3, 3), np.float32) / 25
+    denoised = color_image
+    denoised = np.where(color_image < 130, 0, 255)
+    gray_image = np.where(gray_image < 130, 0, 255)
+    denoised = denoised.astype(np.float32)
+
+    kernel = np.array([[0, -1, 0], [-1, 4, -1], [0, -1, 0]], dtype=np.int8)
+
+    kernel = np.ones(9).reshape(3, 3) / 9
+    denoised = cv2.filter2D(denoised, -1, kernel)
+
+    diff = np.absolute(denoised - gray_image)
+    diff = 255 - diff
     
+    diff = cv2.merge([diff, diff, diff])
+    diff = diff.astype(np.uint8)
     return diff
 
 
