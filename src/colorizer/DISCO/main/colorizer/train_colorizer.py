@@ -213,7 +213,7 @@ def validate(epoch, data_loader, model, criterion, meta_dict, val_plotter, logge
             pal_logit, ref_logit, pred_LAB, affinity_map, spix_colors, hint_mask = model(input_grays, input_colors)
             spix_gt_labels = torch.max(color_class.encode_lab2ind(spix_colors), dim=1, keepdim=True)[1]
             class_weights = color_class.get_classweights(spix_gt_labels)
-            data_dict = {'target_label':spix_gt_labels, 'pal_prob':pal_logit, 'ref_prob':ref_logit, 'pred_color':pred_AB, \
+            data_dict = {'target_label':spix_gt_labels, 'pal_prob':pal_logit, 'ref_prob':ref_logit, 'pred_color':pred_LAB, \
                          'class_weight':class_weights, 'input_gray':input_grays, 'input_color':input_colors, 'spix_color':spix_colors}
             loss_dict = criterion(data_dict, epoch)
             totalLoss_idx = loss_dict['totalLoss']

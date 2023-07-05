@@ -61,7 +61,7 @@ class AnchorAnalysis:
         ## (N,topk,H,W,1)
         topk_probs = torch.softmax(sorted_probs[:,:topk,:,:], dim=1).unsqueeze(4)
         topk_indexs = batch_indexs[:,:topk,:,:]
-        topk_ABs = torch.stack([self.colorLabeler.q_to_ab.index_select(0, q_i.flatten()).reshape(topk,H,W,2)
+        topk_ABs = torch.stack([self.colorLabeler.q_to_lab.index_select(0, q_i.flatten()).reshape(topk,H,W,2)
                     for q_i in topk_indexs])
         ## (N,topk,H,W,2)
         topk_ABs = topk_ABs / 110.0
