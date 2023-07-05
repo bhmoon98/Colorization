@@ -177,8 +177,6 @@ class ColorProbNet(nn.Module):
         conv6_3 += [spectral_norm(nn.Conv2d(512, 512, 3, stride=1, padding=1)), nn.LeakyReLU(0.2, True),]
         conv6_3 += [spectral_norm(nn.Conv2d(512, 512, 3, stride=1, padding=1)), nn.LeakyReLU(0.2, True),]
         conv6_3 += [BNFunc(512, affine=True),]
-        if with_SA:
-            conv6_3 += [Self_Attn(512)]
         # conv7: 32
         conv7_3 = [spectral_norm(nn.Conv2d(512, 512, 3, stride=1, padding=1)), nn.LeakyReLU(0.2, True),]
         conv7_3 += [spectral_norm(nn.Conv2d(512, 512, 3, stride=1, padding=1)), nn.LeakyReLU(0.2, True),]  

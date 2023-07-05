@@ -55,6 +55,7 @@ def train_model(args, gpu_num, gpu_no, is_ddp):
 
     ## MODEL >>>>>>>>>>>>>>>
     cielab = CIELAB()
+    print(cielab.gamut.EXPECTED_SIZE)
     hcolor_model = eval('model.'+args.model)(inChannel=1, outChannel=cielab.gamut.EXPECTED_SIZE, sp_size=args.psize, use_dense_pos=args.dense_pos,\
                                              n_clusters=args.n_clusters, random_hint=args.random_hint, spix_pos=args.spix_pos, \
                                              learning_pos=args.learning_pos, hint2regress=args.hint2regress, enhanced=args.enhanced, rank=gpu_no)
@@ -144,10 +145,10 @@ def train_one_epoch(epoch, data_loader, model, criterion, optimizer, meta_dict, 
 
         et = time.time()
         ## forward
-        pal_logit, ref_logit, pred_AB, affinity_map, spix_colors, hint_mask = model(input_grays, input_colors)
-        spix_gt_labels = torch.max(color_class.encode_ab2ind(spix_colors), dim=1, keepdim=True)[1]
+        pal_logit, ref_logit, pred_LAB, affinity_map, spix_colors, hint_mask = model(input_grays, input_colors)
+        spix_gt_labels = torch.max(color_class.encode_lab2ind(spix_colors), dim=1, keepdim=True)[1]
         class_weights = color_class.get_classweights(spix_gt_labels)
-        data_dict = {'target_label':spix_gt_labels, 'pal_prob':pal_logit, 'ref_prob':ref_logit, 'pred_color':pred_AB, \
+        data_dict = {'target_label':spix_gt_labels, 'pal_prob':pal_logit, 'ref_prob':ref_logit, 'pred_color':pred_LAB, \
                      'class_weight':class_weights, 'input_gray':input_grays, 'input_color':input_colors, 'spix_color':spix_colors}
         loss_dict = criterion(data_dict, epoch)
         totalLoss_idx = loss_dict['totalLoss']
@@ -209,8 +210,8 @@ def validate(epoch, data_loader, model, criterion, meta_dict, val_plotter, logge
             input_BGRs = input_BGRs.cuda(non_blocking=True)
 
             ## forward
-            pal_logit, ref_logit, pred_AB, affinity_map, spix_colors, hint_mask = model(input_grays, input_colors)
-            spix_gt_labels = torch.max(color_class.encode_ab2ind(spix_colors), dim=1, keepdim=True)[1]
+            pal_logit, ref_logit, pred_LAB, affinity_map, spix_colors, hint_mask = model(input_grays, input_colors)
+            spix_gt_labels = torch.max(color_class.encode_lab2ind(spix_colors), dim=1, keepdim=True)[1]
             class_weights = color_class.get_classweights(spix_gt_labels)
             data_dict = {'target_label':spix_gt_labels, 'pal_prob':pal_logit, 'ref_prob':ref_logit, 'pred_color':pred_AB, \
                          'class_weight':class_weights, 'input_gray':input_grays, 'input_color':input_colors, 'spix_color':spix_colors}
@@ -219,7 +220,7 @@ def validate(epoch, data_loader, model, criterion, meta_dict, val_plotter, logge
             total_loss += totalLoss_idx
             
             ## save intermediate images
-            pred_colors = color_class.decode_ind2ab(pal_logit, T=0)
+            pred_colors = color_class.decode_ind2lab(pal_logit, T=0)
             pred_colors = basic.upfeat(pred_colors, affinity_map, sp_size, sp_size)
             pred_labs = torch.cat((input_grays,pred_colors), dim=1)
             lab_imgs = basic.tensor2array(pred_labs)
@@ -237,14 +238,14 @@ def validate(epoch, data_loader, model, criterion, meta_dict, val_plotter, logge
                 hint_mask = torch.sum(hint_mask, dim=1, keepdim=True).view(N,1,16,16)
             
             hint_maps = basic.upfeat(hint_mask, affinity_map, sp_size, sp_size)
-            pred_colors = ref_logit if meta_dict['hint2regress'] else color_class.decode_ind2ab(ref_logit, T=0)
+            pred_colors = ref_logit if meta_dict['hint2regress'] else color_class.decode_ind2lab(ref_logit, T=0)
             pred_colors = basic.upfeat(pred_colors, affinity_map, sp_size, sp_size)
             marked_labs = basic.mark_color_hints(input_grays, input_colors, hint_maps, base_ABs=pred_colors)
             hint_imgs = basic.tensor2array(marked_labs)
             util.save_normLabs_from_batch(hint_imgs, meta_dict['img_dir'], None, batch_idx*gpu_num+gpu_no, suffix='hint')
 
             if meta_dict['enhanced']:
-                recon_labs = torch.cat((input_grays,pred_AB), dim=1)
+                recon_labs = torch.cat((input_grays,pred_LAB), dim=1)
                 recon_lab_imgs = basic.tensor2array(recon_labs)
                 util.save_normLabs_from_batch(recon_lab_imgs, meta_dict['img_dir'], None, batch_idx*gpu_num+gpu_no, suffix='enhanced')
 
@@ -285,6 +286,7 @@ def pack_meta_data(args, img_dir, gpu_no):
 
 
 if __name__ == '__main__':
+    print("-------------train disco-------------")
     torch.backends.cuda.max_split_size_mb = 200
     parser = argparse.ArgumentParser()
     parser = pcolor_argparser(parser)

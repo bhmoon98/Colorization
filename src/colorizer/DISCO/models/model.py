@@ -45,7 +45,7 @@ class AnchorColorProb(nn.Module):
             self.enhanceNet = HourGlass2(inChannel=64+1, outChannel=2, resNum=3, normLayer=nn.BatchNorm2d)
 
         ## transformer architecture
-        self.n_vocab = self.cielab.gamut.EXPECTED_SIZE
+        self.n_voclab = self.cielab.gamut.EXPECTED_SIZE
         self.hint_num = n_clusters
         d_model, dim_feedforward, nhead = d_model, 4*d_model, 8
         dropout, activation = 0.1, "relu"
@@ -59,13 +59,13 @@ class AnchorColorProb(nn.Module):
             n_pos_x, n_pos_y = 256//sp_size, 16//sp_size
         self.pos_enc = build_position_encoding(d_model//2, n_pos_x, n_pos_y, is_learned=False)
 
-        self.mid_word_prj = nn.Linear(d_model, self.n_vocab, bias=False)
+        self.mid_word_prj = nn.Linear(d_model, self.n_voclab, bias=False)
         if self.hint2regress:
             self.trg_word_emb = nn.Linear(d_model+2+1, d_model, bias=False)
             self.trg_word_prj = nn.Linear(d_model, 2, bias=False)
         else:
-            self.trg_word_emb = nn.Linear(d_model+self.n_vocab+1, d_model, bias=False)
-            self.trg_word_prj = nn.Linear(d_model, self.n_vocab, bias=False)
+            self.trg_word_emb = nn.Linear(d_model+self.n_voclab+1, d_model, bias=False)
+            self.trg_word_prj = nn.Linear(d_model, self.n_voclab, bias=False)
         self.colorLabeler = basic.ColorLabel(device=torch.device("cuda:%d"%rank))
         anchor_mode = 'random' if random_hint else 'clustering'
         self.anchorGen = anchor_gen.AnchorAnalysis(mode=anchor_mode, colorLabeler=self.colorLabeler)
@@ -112,13 +112,14 @@ class AnchorColorProb(nn.Module):
             spix_colors = pooled_proxy_feats[:,64:66,:,:]
             pos_feats = pooled_proxy_feats[:,66:,:,:]
         else:
+            # 이거 실행함
             proxy_feats = torch.cat([pred_feats, input_colors], dim=1)
             pooled_proxy_feats, conf_sum = basic.poolfeat(proxy_feats, affinity_map, self.sp_size, self.sp_size, True)
             feat_tokens = pooled_proxy_feats[:,:64,:,:]
             spix_colors = pooled_proxy_feats[:,64:,:,:]
             pos_feats = self.pos_enc(feat_tokens)
 
-        token_labels = torch.max(self.colorLabeler.encode_ab2ind(spix_colors), dim=1, keepdim=True)[1]
+        token_labels = torch.max(self.colorLabeler.encode_lab2ind(spix_colors), dim=1, keepdim=True)[1]
         spixel_sizes = basic.get_spixel_size(affinity_map, self.sp_size, self.sp_size)
         all_one_map = torch.ones(spixel_sizes.shape).cuda()
         empty_entries = torch.where(spixel_sizes < 25/(self.sp_size**2), all_one_map, 1-all_one_map)
@@ -133,7 +134,7 @@ class AnchorColorProb(nn.Module):
         ## color prob branch
         enc_out, _ = self.wildpath(src_seq, src_pos_seq, src_pad_mask)
         pal_logit = self.mid_word_prj(enc_out)
-        pal_logit = pal_logit.permute(1, 2, 0).view(N,self.n_vocab,H,W)
+        pal_logit = pal_logit.permute(1, 2, 0).view(N,self.n_voclab,H,W)
 
         ## seed prob branch
         ## mask(N,1,H,W): sample anchors at clustering layers
@@ -164,7 +165,7 @@ class AnchorColorProb(nn.Module):
             if False:
                 hint_mask, sampled_spix_colors = basic.io_user_control(hint_mask, spix_colors, output=False)
 
-            sampled_token_labels = torch.max(self.colorLabeler.encode_ab2ind(sampled_spix_colors), dim=1, keepdim=True)[1]
+            sampled_token_labels = torch.max(self.colorLabeler.encode_lab2ind(sampled_spix_colors), dim=1, keepdim=True)[1]
             ## for anchor visualization use
             spix_colors = sampled_spix_colors
         else:
@@ -186,7 +187,7 @@ class AnchorColorProb(nn.Module):
             hint_seq = self.trg_word_emb(torch.cat([src_seq, mask_seq * label_seq, mask_seq], dim=2))
             dec_out, _ = self.hintpath(hint_seq, src_pos_seq, src_pad_mask)
         ref_logit = self.trg_word_prj(dec_out)
-        Ct = 2 if self.hint2regress else self.n_vocab
+        Ct = 2 if self.hint2regress else self.n_voclab
         ref_logit = ref_logit.permute(1, 2, 0).view(N,Ct,H,W)
         
         ## pixelwise enhancement

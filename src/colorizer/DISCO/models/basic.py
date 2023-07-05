@@ -176,7 +176,7 @@ class ColorLabel:
         #return self.weights[batch_gt_q.argmax(dim=1, keepdim=True)]
         return self.weights[batch_gt_indx]
 
-    def encode_ab2ind(self, batch_lab, neighbours=5, sigma=5.0):
+    def encode_lab2ind(self, batch_lab, neighbours=5, sigma=5.0):
         n, _, h, w = batch_lab.shape
         m = n * h * w
         # find nearest neighbours
@@ -199,7 +199,7 @@ class ColorLabel:
         q[nns, torch.arange(m).repeat(neighbours, 1)] = nn_gauss        
         return q.reshape(bins, n, h, w).permute(1, 0, 2, 3)
 
-    def decode_ind2ab(self, batch_q, T=0.38):
+    def decode_ind2lab(self, batch_q, T=0.38):
         _, _, h, w = batch_q.shape
         batch_q = F.softmax(batch_q, dim=1)
         if T%1 == 0:
@@ -209,7 +209,7 @@ class ColorLabel:
             #print('checking [probs]', sorted_probs[:,0:5,5,5])
             batch_indexs = batch_indexs[:,T:T+1,:,:]
             #batch_indexs = torch.where(sorted_probs[:,T:T+1,:,:] > 0.25, batch_indexs[:,T:T+1,:,:], batch_indexs[:,0:1,:,:])
-            ab = torch.stack([
+            lab = torch.stack([
                 self.q_to_lab.index_select(0, q_i.flatten()).reshape(h,w,3).permute(2,0,1)
                 for q_i in batch_indexs])
         else:
