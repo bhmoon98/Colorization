@@ -68,7 +68,9 @@ class LabDatasetCustom(Dataset):
         img_gray2lab = torch.from_numpy(img_gray2lab.transpose((2, 0, 1)))
         img_bgr = torch.from_numpy(img_bgr.transpose((2, 0, 1)))
         img_gray = (img_gray2lab[0:1,:,:]-50.) / 50.
+        img_l = (img_bgr2lab[0:1,:,:]-50.) / 50.
         img_color = img_bgr2lab[1:3,:,:] / 110.
+        img_color = np.concatenate((img_l, img_color), axis=0)
         img_bgr = img_bgr*2. - 1.
         return {'gray': img_gray, 'color': img_color, 'BGR': img_bgr}
     
@@ -105,6 +107,6 @@ class DatasetLAB(Dataset):
         img_gray = (img_gray2lab[0:1,:,:]-50.) / 50.
         img_l = (img_bgr2lab[0:1,:,:]-50.) / 50.
         img_color = img_bgr2lab[1:3,:,:] / 110.
-        img_color = np.vstack((img_l, img_color))
+        img_color = np.concatenate((img_l, img_color), axis=0)
         img_bgr = img_bgr*2. - 1.
         return {'gray': img_gray, 'color': img_color, 'BGR': img_bgr}

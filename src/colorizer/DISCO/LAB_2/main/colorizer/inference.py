@@ -33,9 +33,11 @@ def fetch_data(img_path, org_size=True):
     lab_img = torch.from_numpy(lab_img.transpose((2, 0, 1)))
     rgb_img = torch.from_numpy(rgb_img.transpose((2, 0, 1)))
     gray_img = (lab_img[0:1,:,:]-50.) / 50.
-    ab_chans = lab_img[1:3,:,:] / 110.
+    l_img = (lab_img[0:1,:,:]-50.) / 50.
+    ab_img = lab_img[1:3,:,:] / 110.
+    lab_img = torch.cat((l_img, ab_img), 0)
     rgb_img = rgb_img*2. - 1.
-    return gray_img.unsqueeze(0), ab_chans.unsqueeze(0), rgb_img.unsqueeze(0), (H,W)
+    return gray_img.unsqueeze(0), lab_img.unsqueeze(0), rgb_img.unsqueeze(0), (H,W)
 
 
 def load_filelist(file_path, root_dir):
@@ -103,29 +105,29 @@ def test_model(data_dir, model_name, sp_size, checkpt_path, name, seq_model_args
         ## inference
         is_test_mode = True
         sampled_T = 2 if args.diverse else 0
-        pal_logit, ref_logit, enhanced_ab, affinity_map, spix_colors, hint_mask = color_model(input_grays, \
+        pal_logit, ref_logit, enhanced_lab, affinity_map, spix_colors, hint_mask = color_model(input_grays, \
                                                             input_colors, is_test_mode, sampled_T)
         pred_probs = pal_logit
         if args.hint2regress:
             guided_colors = ref_logit
         else:
-            guided_colors = color_class.decode_ind2ab(ref_logit, T=0)
+            guided_colors = color_class.decode_ind2lab(ref_logit, T=0)
         guided_colors = basic.upfeat(guided_colors, affinity_map, sp_size, sp_size)
         if args.diverse:
             for no in range(3):
-                pred_labs = torch.cat((input_grays,enhanced_ab[no:no+1,:,:,:]), dim=1)
+                pred_labs = torch.cat((input_grays,enhanced_lab[no:no+1,:,:,:]), dim=1)
                 lab_imgs = basic.tensor2array(pred_labs)
                 lab_imgs = batch_depadding(lab_imgs, H, W, args)
                 util.save_normLabs_from_batch(lab_imgs, save_dir, [file_name], -1, suffix='c%d'%no)
         else:
-            pred_labs = torch.cat((input_grays,enhanced_ab), dim=1)
+            pred_labs = enhanced_lab
             lab_imgs = basic.tensor2array(pred_labs)
             lab_imgs = batch_depadding(lab_imgs, H, W, args)
             util.save_normLabs_from_batch(lab_imgs, save_dir, [file_name], -1)#, suffix='enhanced')
 
             ## visualize anchor locations
             anchor_masks = basic.upfeat(hint_mask, affinity_map, sp_size, sp_size)
-            marked_labs = basic.mark_color_hints(input_grays, enhanced_ab, anchor_masks, base_ABs=enhanced_ab)
+            marked_labs = basic.mark_color_hints(input_grays, enhanced_lab, anchor_masks, base_ABs=enhanced_lab)
             hint_imgs = basic.tensor2array(marked_labs)
             hint_imgs = batch_depadding(hint_imgs, H, W, args)
             #util.save_normLabs_from_batch(hint_imgs, save_dir, [file_name], -1, suffix='anchors')

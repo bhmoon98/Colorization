@@ -75,19 +75,20 @@ def build_dataloader(dataset_info, mode, logger, gpu_num=1, rank=0, is_ddp=False
         file_list_color = []
         file_list_gray = []
         data_dir = dataset_info['data_dir']
-        if mode == 'train':
-            data_dir = os.path.join(data_dir, 'train')
-            
-        if mode == 'val':
-            data_dir = os.path.join(data_dir, 'val')
         data_color_dir=os.path.join(data_dir, 'Color')
         data_gray_dir=os.path.join(data_dir, 'Gray')
+        if mode == 'train':
+            data_color_dir=os.path.join(data_color_dir, 'train')
+            data_gray_dir=os.path.join(data_gray_dir, 'train')
+        if mode == 'val':
+            data_color_dir=os.path.join(data_color_dir, 'val')
+            data_gray_dir=os.path.join(data_gray_dir, 'val')
         file_list_color = get_filelist(data_color_dir)
         file_list_color.sort()
         file_list_gray = get_filelist(data_gray_dir)
         file_list_gray.sort()
         imgs_list = list(zip(file_list_color, file_list_gray))
-        dataset = dataset_lab.LabDatasetCustom(imgs_list = imgs_list, resize= 256)
+        dataset = dataset_lab.DatasetLAB(imgs_list = imgs_list, resize= 256)
     elif dataset_info['dataset'] == 'disco':
         #data_dir = os.path.join(dataset_info['data_dir'], 'target')
         data_dir = dataset_info['data_dir']

@@ -7,6 +7,7 @@ from position_encoding import build_position_encoding
 import basic, clusterkit, anchor_gen
 from collections import OrderedDict
 from utils import util, cielab
+import cv2
 
 
 class SpixelSeg(nn.Module):
@@ -42,7 +43,7 @@ class AnchorColorProb(nn.Module):
         self.repnet = ColorProbNet(inChannel=inChannel, outChannel=64)
         self.enhanced = enhanced
         if self.enhanced:
-            self.enhanceNet = HourGlass2(inChannel=64+1, outChannel=2, resNum=3, normLayer=nn.BatchNorm2d)
+            self.enhanceNet = HourGlass2(inChannel=64+1, outChannel=3, resNum=3, normLayer=nn.BatchNorm2d)
 
         ## transformer architecture
         self.n_voclab = self.cielab.gamut.EXPECTED_SIZE
@@ -114,6 +115,7 @@ class AnchorColorProb(nn.Module):
         else:
             # 이거 실행함
             proxy_feats = torch.cat([pred_feats, input_colors], dim=1)
+
             pooled_proxy_feats, conf_sum = basic.poolfeat(proxy_feats, affinity_map, self.sp_size, self.sp_size, True)
             feat_tokens = pooled_proxy_feats[:,:64,:,:]
             spix_colors = pooled_proxy_feats[:,64:,:,:]
@@ -147,7 +149,7 @@ class AnchorColorProb(nn.Module):
             if sampled_T < 0:
                 ## GT anchor colors
                 sampled_spix_colors = spix_colors
-            elif sampled_T > 0:                
+            elif sampled_T > 0:
                 top1_spix_colors = self.anchorGen._sample_anchor_colors(pred_prob, hint_mask, T=0)
                 top2_spix_colors = self.anchorGen._sample_anchor_colors(pred_prob, hint_mask, T=1)
                 top3_spix_colors = self.anchorGen._sample_anchor_colors(pred_prob, hint_mask, T=2)
@@ -195,7 +197,7 @@ class AnchorColorProb(nn.Module):
         if self.enhanced:
             proc_feats = dec_out.permute(1, 2, 0).view(N,64,H,W)
             full_feats = basic.upfeat(proc_feats, affinity_map, self.sp_size, self.sp_size)
-            pred_colors = self.enhanceNet(torch.cat((input_grays,full_feats), dim=1))
-            pred_colors = torch.tanh(pred_colors)
+            pred_colors = self.enhanceNet(torch.cat((input_grays, full_feats), dim=1))
+            pred_colors = torch.tanh(pred_colors) # 활성화 함수
 
         return pal_logit, ref_logit, pred_colors, affinity_map, spix_colors, hint_mask

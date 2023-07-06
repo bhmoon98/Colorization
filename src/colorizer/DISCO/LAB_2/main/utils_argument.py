@@ -13,7 +13,7 @@ def spixel_argparser(parser):
     parser.add_argument('--scheduler', default='linear', type=str, help='LR scheduler')
     parser.add_argument('--lr', default=2e-4, type=float, help='learning rate')
     parser.add_argument('--wd', default=0, type=float, help='weight decay')
-    parser.add_argument('--epochs', default=1000, type=int, help='number of total epochs to run')
+    parser.add_argument('--epochs', default=5, type=int, help='number of total epochs to run')
     parser.add_argument('--workers', default=12, type=int, help='number of worker to use')
     parser.add_argument('--eval_freq', default=1, type=int)
 

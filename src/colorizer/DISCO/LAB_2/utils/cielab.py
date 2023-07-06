@@ -52,12 +52,15 @@ class CIEAB:
     def _get_ab(cls):
         a = np.arange(*cls.AB_RANGE, dtype=cls.AB_DTYPE)
         b = np.arange(*cls.AB_RANGE, dtype=cls.AB_DTYPE)
+        print(a, b)
         b_, a_ = np.meshgrid(a, b)
         ab = np.dstack((a_, b_))
+        print(ab)
         return a, b, ab
 
     @classmethod
     def _get_ab_gamut_mask(cls, a, b, ab, gamut):
+        print(ab.shape)
         ab_gamut_mask = np.full(ab.shape[:-1], False, dtype=bool)
         a = np.digitize(gamut.points[:, 0], a) - 1
         b = np.digitize(gamut.points[:, 1], b) - 1
@@ -89,8 +92,8 @@ class CIEAB:
 class CIELAB:
     L_MEAN = 50
     AB_BINSIZE = 10
-    AB_RANGE = [-110, 110, AB_BINSIZE]
-    L_RANGE = [0, 100, 10]
+    AB_RANGE = [-110, 120, AB_BINSIZE]
+    L_RANGE = [0, 101, 10]
     LAB_DTYPE = np.float32
     Q_DTYPE = np.int64
 
@@ -100,7 +103,7 @@ class CIELAB:
 
     def __init__(self, gamut=None):
         self.gamut = gamut if gamut is not None else LABGamut()
-        l, a, b, self.lab = self._get_ab()
+        l, a, b, self.lab = self._get_lab()
         self.lab_gamut_mask = self._get_lab_gamut_mask(
             l, a, b, self.lab, self.gamut)
 
@@ -108,12 +111,15 @@ class CIELAB:
         self.q_to_lab = self._get_q_to_lab(self.lab, self.lab_gamut_mask)
 
     @classmethod
-    def _get_ab(cls):
-        l = np.arange(*cls.L_RANGE, cls.LAB_DTYPE)
+    def _get_lab(cls):
+        l = np.arange(*cls.L_RANGE, dtype=cls.LAB_DTYPE)
         a = np.arange(*cls.AB_RANGE, dtype=cls.LAB_DTYPE)
         b = np.arange(*cls.AB_RANGE, dtype=cls.LAB_DTYPE)
-        l_, b_, a_ = np.meshgrid(l, a, b)
-        lab = np.dstack((l_, a_, b_))
+        lab = np.zeros((len(l), len(a), len(b), 3), cls.LAB_DTYPE)
+        for i, l_val in enumerate(l):
+            for j, a_val in enumerate(a):
+                for k, b_val in enumerate(b):
+                    lab[i, j, k] = [l_val, a_val, b_val]
         return l, a, b, lab
 
     @classmethod
@@ -137,3 +143,6 @@ class CIELAB:
     @classmethod
     def _get_q_to_lab(cls, lab, lab_gamut_mask):
         return lab[lab_gamut_mask] + cls.AB_BINSIZE / 2
+
+if __name__=="__main__":
+    cielab = CIELAB()

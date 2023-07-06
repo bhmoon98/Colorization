@@ -222,9 +222,11 @@ class ColorLabel:
             b = torch.tensordot(batch_q, self.q_to_lab[:,2], dims=((1,), (0,)))
             b = b.unsqueeze(dim=1)
             ab = torch.cat((a, b), dim=1)
-        ab = ab / 110.
-        l = l / 100.
-        return ab.type(batch_q.dtype)
+            ab = ab / 110.
+            l = l / 100.
+            lab = torch.cat((l, ab), dim=1)
+            print(lab)
+        return lab.type(batch_q.dtype)
 
 
 def init_spixel_grid(img_height, img_width, spixel_size=16):

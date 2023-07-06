@@ -61,35 +61,40 @@ class AnchorAnalysis:
         ## (N,topk,H,W,1)
         topk_probs = torch.softmax(sorted_probs[:,:topk,:,:], dim=1).unsqueeze(4)
         topk_indexs = batch_indexs[:,:topk,:,:]
-        topk_ABs = torch.stack([self.colorLabeler.q_to_lab.index_select(0, q_i.flatten()).reshape(topk,H,W,2)
+        topk_LABs = torch.stack([self.colorLabeler.q_to_lab.index_select(0, q_i.flatten()).reshape(topk,H,W,3)
                     for q_i in topk_indexs])
         ## (N,topk,H,W,2)
-        topk_ABs = topk_ABs / 110.0
+        topk_ABs = topk_LABs[:,:,:,:,1:] / 110.0
+        topk_ABs = topk_ABs.permute(4, 0, 1, 2, 3)
+        topk_Ls = (topk_LABs[:,:,:,:,:1] -50.)/50.
+        topk_Ls = topk_Ls.permute(4, 0, 1, 2, 3)
+        topk_LABs = torch.cat((topk_Ls, topk_ABs), 0)
+        topk_LABs = topk_LABs.permute(1, 2, 3, 4, 0)
         ## choose the most distinctive 3 colors for each anchor
         if T == 0:
-            sampled_ABs = topk_ABs[:,0,:,:,:]
+            sampled_LABs = topk_LABs[:,0,:,:,:]
         elif T == 1:
-            sampled_AB0 = topk_ABs[:,[0],:,:,:]
-            internal_diff = torch.norm(topk_ABs-sampled_AB0, p=2, dim=4, keepdim=True)
+            sampled_LAB0 = topk_LABs[:,[0],:,:,:]
+            internal_diff = torch.norm(topk_LABs-sampled_LAB0, p=2, dim=4, keepdim=True)
             _, batch_indexs = torch.sort(internal_diff, dim=1, descending=True)
             ## (N,1,H,W,2)
-            selected_index = batch_indexs[:,[0],:,:,:].expand([-1,-1,-1,-1,2])
-            sampled_ABs = torch.gather(topk_ABs, 1, selected_index)
-            sampled_ABs = sampled_ABs.squeeze(1)
+            selected_index = batch_indexs[:,[0],:,:,:].expand([-1,-1,-1,-1,3])
+            sampled_LABs = torch.gather(topk_LABs, 1, selected_index)
+            sampled_LABs = sampled_LABs.squeeze(1)
         else:
-            sampled_AB0 = topk_ABs[:,[0],:,:,:]
-            internal_diff = torch.norm(topk_ABs-sampled_AB0, p=2, dim=4, keepdim=True)
+            sampled_LAB0 = topk_LABs[:,[0],:,:,:]
+            internal_diff = torch.norm(topk_LABs-sampled_LAB0, p=2, dim=4, keepdim=True)
             _, batch_indexs = torch.sort(internal_diff, dim=1, descending=True)
-            selected_index = batch_indexs[:,[0],:,:,:].expand([-1,-1,-1,-1,2])
-            sampled_AB1 = torch.gather(topk_ABs, 1, selected_index)
-            internal_diff2 = torch.norm(topk_ABs-sampled_AB1, p=2, dim=4, keepdim=True)
+            selected_index = batch_indexs[:,[0],:,:,:].expand([-1,-1,-1,-1,4])
+            sampled_LAB1 = torch.gather(topk_LABs, 1, selected_index)
+            internal_diff2 = torch.norm(topk_LABs-sampled_AB1, p=2, dim=4, keepdim=True)
             _, batch_indexs = torch.sort(internal_diff+internal_diff2, dim=1, descending=True)
             ## (N,1,H,W,2)
             selected_index = batch_indexs[:,[T-2],:,:,:].expand([-1,-1,-1,-1,2])
             sampled_ABs = torch.gather(topk_ABs, 1, selected_index)
             sampled_ABs = sampled_ABs.squeeze(1)
 
-        return sampled_ABs.permute(0,3,1,2)
+        return sampled_LABs.permute(0,3,1,2)
 
     def __call__(self, data_tensors, n_anchors, spixel_sizes, use_sklearn_kmeans=False):
         N,C,H,W = data_tensors.shape

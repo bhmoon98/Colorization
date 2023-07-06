@@ -1,0 +1,4 @@
+chmod +x train.sh
+sh train.sh@
+
+python -m main.colorizer.inference  --data /home/work/Circuit/dataset/Gray/test --checkpt /home/work/Synapse/DISCO/model/lab_1/disco/checkpts/model_best.pth.tar --name /home/work/Synapse/DISCO/model/lab_1/img/ --n_clusters 8

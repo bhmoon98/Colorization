@@ -92,6 +92,7 @@ def save_images_from_batch(img_batch, save_dir, filename_list, batch_no=-1, suff
 
 def save_normLabs_from_batch(img_batch, save_dir, filename_list, batch_no=-1, suffix=None):
     N,H,W,C = img_batch.shape
+    print(C)
     if C != 3:
         print('@Warning:the Lab images are NOT in 3 channels!')
         return None

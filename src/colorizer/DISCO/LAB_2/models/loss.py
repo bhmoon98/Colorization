@@ -43,10 +43,11 @@ class AnchorColorProbLoss:
             self.VGGLoss = VGG19Loss(gpu_no=gpu_no, is_ddp=mpdist)
     
     def _perceptual_loss(self, input_grays, input_colors, pred_colors):
-        input_RGBs = basic.lab2rgb(torch.cat([input_grays,input_colors], dim=1))
-        pred_RGBs = basic.lab2rgb(torch.cat([input_grays,pred_colors], dim=1))
+        input_RGBs = basic.lab2rgb(input_colors)
+        pred_RGBs = basic.lab2rgb(pred_colors)
         ## the output of "lab2rgb" just matches the input of "VGGLoss": [0,1]
-        return self.VGGLoss(input_RGBs, pred_RGBs)
+        loss = self.VGGLoss(input_RGBs, pred_RGBs)
+        return loss
     
     def _laplace_gradient(self, pred_AB, target_AB):
         N,C,H,W = pred_AB.shape
@@ -54,7 +55,8 @@ class AnchorColorProbLoss:
         kernel = kernel.view(1, 1, *kernel.size()).repeat(C,1,1,1)
         grad_pred = F.conv2d(pred_AB, kernel, groups=C)
         grad_trg = F.conv2d(target_AB, kernel, groups=C)
-        return l1_loss(grad_trg, grad_pred)
+        loss = l1_loss(grad_trg, grad_pred)
+        return loss
         
     def __call__(self, data, epoch_no):
         N,C,H,W = data['target_label'].shape
